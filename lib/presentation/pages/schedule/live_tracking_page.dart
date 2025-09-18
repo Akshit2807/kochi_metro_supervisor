@@ -31,7 +31,7 @@ class LiveTrackingScreen extends StatelessWidget {
           style: TextStyle(
             color: Colors.black,
             fontSize: 20,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
@@ -65,16 +65,17 @@ class LiveTrackingScreen extends StatelessWidget {
                           'Train ID',
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey[600],
-                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           "Train $trainId",
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                            color: Colors.black.withValues(alpha: 0.6),
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
@@ -103,16 +104,17 @@ class LiveTrackingScreen extends StatelessWidget {
                           'Route',
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey[600],
-                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           route,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                            color: Colors.black.withValues(alpha: 0.6),
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
@@ -208,6 +210,7 @@ class LiveTrackingScreen extends StatelessWidget {
                                           stop.stopName,
                                           style: const TextStyle(
                                             fontSize: 16,
+                                            color: Colors.black,
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
@@ -216,7 +219,7 @@ class LiveTrackingScreen extends StatelessWidget {
                                           'ID: ${stop.stopId}',
                                           style: TextStyle(
                                             fontSize: 12,
-                                            color: Colors.grey[600],
+                                            color: Colors.grey[800],
                                           ),
                                         ),
                                       ],
@@ -270,7 +273,7 @@ class LiveTrackingScreen extends StatelessWidget {
                                             'Arrival',
                                             style: TextStyle(
                                               fontSize: 12,
-                                              color: Colors.grey[600],
+                                              color: Colors.black,
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
@@ -300,7 +303,7 @@ class LiveTrackingScreen extends StatelessWidget {
                                             'Departure',
                                             style: TextStyle(
                                               fontSize: 12,
-                                              color: Colors.grey[600],
+                                              color: Colors.black,
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
