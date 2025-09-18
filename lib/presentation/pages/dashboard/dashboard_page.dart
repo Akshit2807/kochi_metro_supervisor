@@ -23,18 +23,6 @@ class DashboardPage extends GetView<DashboardController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-        title: 'Overview',
-        actions: [
-          GestureDetector(
-              onTap: () {
-                Get.toNamed(AppRoutes.notification);
-              },
-              child: const Icon(Icons.notifications,
-                  color: AppTheme.textSecondary)),
-          const SizedBox(width: 16),
-        ],
-      ),
       body: RefreshIndicator(
         onRefresh: () async => controller.refreshData(),
         color: AppTheme.primaryColor,
@@ -45,67 +33,111 @@ class DashboardPage extends GetView<DashboardController> {
                     color: AppTheme.primaryColor,
                   ),
                 )
-              : SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Welcome section
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [
-                              AppTheme.primaryColor,
-                              AppTheme.secondaryColor,
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+              : Container(
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                        Colors.white,
+                        Color(0xffC2FFFF),
+                      ])),
+                  child: Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child: Image.asset(
+                            "assets/dashboard.png",
+                            fit: BoxFit.cover,
                           ),
-                          borderRadius: BorderRadius.circular(16),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Obx(
-                              () => Text(
-                                'Welcome back, ${controller.currentUser.value?.name ?? "Supervisor"}!',
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Here\'s your system overview for today',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.white.withOpacity(0.9),
-                              ),
-                            ),
+                        CustomAppBar(
+                          title: 'Overview',
+                          actions: [
+                            GestureDetector(
+                                onTap: () {
+                                  Get.toNamed(AppRoutes.notification);
+                                },
+                                child: const Icon(
+                                  Icons.notifications_active_outlined,
+                                  color: Colors.black,
+                                  size: 32,
+                                )),
+                            const SizedBox(width: 16),
                           ],
                         ),
-                      ),
 
-                      const SizedBox(height: 24),
+                        // Overview cards
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: const OverviewCards(),
+                        ),
 
-                      // Overview cards
-                      const OverviewCards(),
-
-                      const SizedBox(height: 24),
-                      //
-                      // // Train status section
-                      // const TrainStatusSection(),
-                    ],
+                        const SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildTile(
+                                "Maintenance",
+                                controller.maintenanceTrains.value.toString(),
+                                "assets/icons/maintenance.png"),
+                            _buildTile(
+                                "Cleaning", "3", "assets/icons/cleaning.png"),
+                            _buildTile(
+                                "Operation", "1", "assets/icons/operation.png"),
+                            _buildTile(
+                                "Stand By", "4", "assets/icons/stand.png"),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        ListTile(
+                          title: Text(""),
+                        )
+                        //
+                        // // Train status section
+                        // const TrainStatusSection(),
+                      ],
+                    ),
                   ),
                 ),
         ),
       ),
       bottomNavigationBar: const CustomBottomNavigationBar(),
+    );
+  }
+
+  Widget _buildTile(String title, String count, String img) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 8,
+            spreadRadius: 2,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+        ImageIcon(
+          AssetImage(img),
+          size: 36,
+        ),
+        Text(
+          title,
+          style: TextStyle(
+              fontWeight: FontWeight.w900, color: Colors.black, fontSize: 12),
+        ),
+        Text(
+          "Ongoing: $count",
+          style: TextStyle(
+              fontWeight: FontWeight.w400, color: Colors.black, fontSize: 10),
+        ),
+      ]),
     );
   }
 }

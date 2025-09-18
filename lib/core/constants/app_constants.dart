@@ -1,7 +1,7 @@
 class AppConstants {
   static const String appName = 'Kochi Metro Supervisor';
 
-  static const String baseUrl = 'http://localhost:5000';
+  static const String baseUrl = 'https://kochi-metro-backend.onrender.com';
 
   static const String authTokenKey = 'auth_token';
 

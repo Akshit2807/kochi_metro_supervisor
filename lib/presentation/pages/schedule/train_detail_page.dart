@@ -45,7 +45,7 @@ class TrainDetailsScreen extends StatelessWidget {
           style: TextStyle(
             color: Colors.black,
             fontSize: 20,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
@@ -177,7 +177,8 @@ class TrainDetailsScreen extends StatelessWidget {
                         'Departure',
                         style: TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
@@ -197,7 +198,8 @@ class TrainDetailsScreen extends StatelessWidget {
                         'Arrival',
                         style: TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
@@ -210,33 +212,6 @@ class TrainDetailsScreen extends StatelessWidget {
                     ],
                   ),
                 ],
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Stops Section
-            _buildSectionTitle('Stops'),
-            const SizedBox(height: 12),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Text(
-                stop,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -287,8 +262,8 @@ class TrainDetailsScreen extends StatelessWidget {
                     'Next Maintenance',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -326,8 +301,8 @@ class TrainDetailsScreen extends StatelessWidget {
                     'Fitness Certificate',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -369,17 +344,18 @@ class TrainDetailsScreen extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: Colors.grey,
+              color: Colors.black,
               fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
+              color: Colors.black.withValues(alpha: 0.5),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -429,8 +405,8 @@ class TrainDetailsScreen extends StatelessWidget {
                 title,
                 style: const TextStyle(
                   fontSize: 14,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.w500,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],

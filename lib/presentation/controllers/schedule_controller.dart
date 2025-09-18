@@ -181,7 +181,6 @@ class ScheduleController extends GetxController {
   // Get time filter options
   List<String> getTimeOptions() {
     return [
-      'Day (6 AM - 12 AM)',
       'Morning (6 AM - 12 PM)',
       'Afternoon (12 PM - 6 PM)',
       'Evening (6 PM - 12 AM)',
@@ -201,10 +200,6 @@ class ScheduleController extends GetxController {
     final now = DateTime.now();
 
     switch (timeLabel) {
-      case 'Day (6 AM - 12 AM)':
-        time.value = DateTime(now.year, now.month, now.day,
-            12); // 12 PM as representative for whole day
-        break;
       case 'Morning (6 AM - 12 PM)':
         time.value =
             DateTime(now.year, now.month, now.day, 9); // 9 AM as representative

@@ -37,54 +37,6 @@ class OverviewCards extends GetView<DashboardController> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _OverviewCard(
-                  title: 'Available Trains',
-                  value: controller.availableTrains.value.toString(),
-                  subtitle: 'Fitness Valid',
-                  icon: Icons.check_circle,
-                  color: AppTheme.primaryColor,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _OverviewCard(
-                  title: 'Trains for Maintenance',
-                  value: controller.maintenanceTrains.value.toString(),
-                  subtitle: 'Pending Cleaning\nMaintenance',
-                  icon: Icons.schedule,
-                  color: AppTheme.secondaryColor,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _OverviewCard(
-                  title: 'Available Trains',
-                  value: controller.availableTrains.value.toString(),
-                  subtitle: 'Fitness Valid',
-                  icon: Icons.speed,
-                  color: AppTheme.primaryColor,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _OverviewCard(
-                  title: 'Trains for Maintenance',
-                  value: controller.maintenanceTrains.value.toString(),
-                  subtitle: 'Pending Cleaning\nMaintenance',
-                  icon: Icons.engineering,
-                  color: AppTheme.errorColor,
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -119,8 +71,9 @@ class _OverviewCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 8,
+            spreadRadius: 2,
             offset: const Offset(0, 4),
           ),
         ],
@@ -135,9 +88,9 @@ class _OverviewCard extends StatelessWidget {
                 child: Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textSecondary,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 20,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
@@ -150,15 +103,16 @@ class _OverviewCard extends StatelessWidget {
             style: const TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimary,
+              color: Colors.black,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: const TextStyle(
-              fontSize: 11,
-              color: AppTheme.textSecondary,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Color(0xff808080),
               height: 1.2,
             ),
           ),

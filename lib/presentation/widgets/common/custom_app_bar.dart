@@ -22,59 +22,44 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       title: Text(
         title,
-
         style: const TextStyle(
-          fontWeight: FontWeight.w600,
-
+          fontWeight: FontWeight.bold,
+          fontSize: 32,
           color: AppTheme.textPrimary,
         ),
       ),
-
       backgroundColor: Colors.transparent,
-
       elevation: 0,
-
       actions: [
         ...?actions,
-
         PopupMenuButton<String>(
           icon: Container(
             width: 40,
-
             height: 40,
-
             decoration: BoxDecoration(
               color: AppTheme.primaryColor,
-
               borderRadius: BorderRadius.circular(20),
             ),
-
             child: const Icon(Icons.person, color: Colors.white, size: 20),
           ),
-
           onSelected: (value) async {
             if (value == 'logout') {
               _showLogoutDialog(context);
             }
           },
-
           itemBuilder: (context) => [
             const PopupMenuItem(
               value: 'logout',
-
               child: Row(
                 children: [
                   Icon(Icons.logout, color: AppTheme.errorColor),
-
                   SizedBox(width: 8),
-
                   Text('Logout'),
                 ],
               ),
             ),
           ],
         ),
-
         const SizedBox(width: 16),
       ],
     );
@@ -84,12 +69,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     Get.dialog(
       AlertDialog(
         title: const Text('Logout'),
-
         content: const Text('Are you sure you want to logout?'),
-
         actions: [
           TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
-
           ElevatedButton(
             onPressed: () async {
               final storageService = Get.find<StorageService>();
@@ -100,11 +82,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
               Get.offAllNamed(AppRoutes.auth);
             },
-
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.errorColor,
             ),
-
             child: const Text('Logout'),
           ),
         ],
