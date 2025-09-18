@@ -1,53 +1,317 @@
 import 'package:get/get.dart';
 
-class MaintenanceController extends GetxController {
-  final isLoading = false.obs;
+// Import for Get and Widget
+import 'package:flutter/material.dart';
 
-  final maintenanceTasks = <Map<String, dynamic>>[].obs;
+import '../../data/models/maintenance_model.dart';
+import '../../domain/usecases/maintenance_usecase.dart';
+
+class MaintenanceController extends GetxController {
+  final MaintenanceUseCase _useCase;
+
+  MaintenanceController(this._useCase);
+
+  // Observables
+  final _isLoading = false.obs;
+  final _errorMessage = ''.obs;
+  final _maintenanceData = Rxn<MaintenanceResponse>();
+  final _filteredTrains = <TrainPriority>[].obs;
+  final _selectedPriorityLevel = 'All'.obs;
+  final _searchQuery = ''.obs;
+
+  // Getters
+  bool get isLoading => _isLoading.value;
+  String get errorMessage => _errorMessage.value;
+  MaintenanceResponse? get maintenanceData => _maintenanceData.value;
+  List<TrainPriority> get filteredTrains => _filteredTrains.toList();
+  String get selectedPriorityLevel => _selectedPriorityLevel.value;
+  String get searchQuery => _searchQuery.value;
+
+  // Computed properties
+  List<TrainPriority> get allTrains {
+    return maintenanceData?.data.trainPriorities ?? [];
+  }
+
+  int get totalTrains {
+    return maintenanceData?.data.analysisMetadata.totalTrains ?? 0;
+  }
+
+  int get highPriorityCount {
+    return maintenanceData?.data.summaryByPriorityLevel.highPriority.length ??
+        0;
+  }
+
+  int get mediumPriorityCount {
+    return maintenanceData?.data.summaryByPriorityLevel.mediumPriority.length ??
+        0;
+  }
+
+  int get lowPriorityCount {
+    return maintenanceData?.data.summaryByPriorityLevel.lowPriority.length ?? 0;
+  }
+
+  List<String> get priorityLevels => ['All', 'High', 'Medium', 'Low'];
 
   @override
   void onInit() {
     super.onInit();
-
-    _loadMaintenanceTasks();
+    loadMaintenanceData();
   }
 
-  void _loadMaintenanceTasks() {
-    // Generate dummy maintenance data
+  Future<void> loadMaintenanceData() async {
+    try {
+      _isLoading.value = true;
+      _errorMessage.value = '';
 
-    final tasks = [
-      'Brake System Check',
-      'Engine Inspection',
-      'Door Mechanism Service',
-      'Air Conditioning Maintenance',
-      'Safety System Verification',
-      'Electrical System Check',
-      'Wheel Inspection',
-      'Communication System Test',
-    ];
+      final response = await _useCase.execute();
+      _maintenanceData.value = response;
 
-    for (int i = 0; i < tasks.length; i++) {
-      maintenanceTasks.add({
-        'id': 'task_$i',
-        'trainNumber': 'KM${(26 + i).toString().padLeft(3, '0')}',
-        'task': tasks[i],
-        'priority': _getRandomPriority(),
-        'assignedTo': 'Technician ${i + 1}',
-        'estimatedTime': '${(i % 4) + 1} hours',
-        'status': _getRandomTaskStatus(),
-      });
+      // Initialize filtered trains with all trains
+      _applyFilters();
+    } catch (e) {
+      print(e.toString());
+      _errorMessage.value = e.toString();
+      Get.snackbar(
+        'Error',
+        'Failed to load maintenance data: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      _isLoading.value = false;
     }
   }
 
-  String _getRandomPriority() {
-    final priorities = ['High', 'Medium', 'Low'];
-
-    return priorities[DateTime.now().millisecond % priorities.length];
+  Future<void> refreshData() async {
+    await loadMaintenanceData();
   }
 
-  String _getRandomTaskStatus() {
-    final statuses = ['Pending', 'In Progress', 'Completed', 'On Hold'];
+  void setPriorityFilter(String level) {
+    _selectedPriorityLevel.value = level;
+    _applyFilters();
+  }
 
-    return statuses[DateTime.now().millisecond % statuses.length];
+  void setSearchQuery(String query) {
+    _searchQuery.value = query;
+    _applyFilters();
+  }
+
+  void clearFilters() {
+    _selectedPriorityLevel.value = 'All';
+    _searchQuery.value = '';
+    _applyFilters();
+  }
+
+  void _applyFilters() {
+    var trains = List<TrainPriority>.from(allTrains);
+
+    // Sort by priority rank
+    trains = _useCase.sortTrainsByPriority(trains);
+
+    // Apply priority level filter
+    if (_selectedPriorityLevel.value != 'All') {
+      trains = _useCase.filterTrainsByPriorityLevel(
+        trains,
+        _selectedPriorityLevel.value,
+      );
+    }
+
+    // Apply search filter
+    if (_searchQuery.value.isNotEmpty) {
+      trains = _useCase.searchTrains(trains, _searchQuery.value);
+    }
+
+    _filteredTrains.value = trains;
+  }
+
+  TrainPriority? getTrainById(String trainId) {
+    try {
+      return allTrains.firstWhere((train) => train.trainId == trainId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  String getFormattedScore(double score) {
+    return (score * 100).toStringAsFixed(1);
+  }
+
+  String getFormattedTimestamp() {
+    if (maintenanceData?.timestamp.isEmpty ?? true) return 'N/A';
+
+    try {
+      final dateTime = DateTime.parse(maintenanceData!.timestamp);
+      return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+    } catch (e) {
+      return 'Invalid date';
+    }
+  }
+
+  void showTrainDetails(TrainPriority train) {
+    Get.bottomSheet(
+      _buildTrainDetailSheet(train),
+      backgroundColor: Get.theme.scaffoldBackgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+    );
+  }
+
+  Widget _buildTrainDetailSheet(TrainPriority train) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Train ${train.trainId}',
+                    style: Get.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: train.priorityColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: train.priorityColor),
+                    ),
+                    child: Text(
+                      '${train.priorityLevel} Priority',
+                      style: TextStyle(
+                        color: train.priorityColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              // Scores
+              Text(
+                'Maintenance Scores',
+                style: Get.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              _buildScoreRow('Priority Rank', train.priorityRank.toString()),
+              _buildScoreRow(
+                  'Final Score', '${getFormattedScore(train.finalScore)}%'),
+              _buildScoreRow('Weighted Score',
+                  '${getFormattedScore(train.weightedScore)}%'),
+
+              const Divider(height: 18),
+
+              // Component Scores
+              Text(
+                'Component Scores',
+                style: Get.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              _buildScoreRow('Branding',
+                  '${getFormattedScore(train.scoresBySheet.branding)}%'),
+              _buildScoreRow('Job Card',
+                  '${getFormattedScore(train.scoresBySheet.jobCard)}%'),
+              _buildScoreRow('Cleaning',
+                  '${getFormattedScore(train.scoresBySheet.cleaning)}%'),
+              _buildScoreRow('Fitness',
+                  '${getFormattedScore(train.scoresBySheet.fitness)}%'),
+              _buildScoreRow('Geometry',
+                  '${getFormattedScore(train.scoresBySheet.geometry)}%'),
+              _buildScoreRow('Mileage',
+                  '${getFormattedScore(train.scoresBySheet.mileage)}%'),
+
+              const SizedBox(height: 10),
+
+              // Original Data Section (if available)
+              if (train.originalData != null) ...[
+                Text(
+                  'Original Data',
+                  style: Get.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _buildOriginalDataSection(train.originalData!),
+              ],
+
+              // const SizedBox(height: 12),
+
+              // Close Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Get.back(),
+                  child: const Text(
+                    'Close',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScoreRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label),
+          Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOriginalDataSection(OriginalData data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (data.branding != null) ...[
+          _buildScoreRow('Revenue', '₹${data.branding!.revenue}'),
+          _buildScoreRow('Penalty', '₹${data.branding!.penalty}'),
+          _buildScoreRow(
+              'Remaining Hours', '${data.branding!.remainingHours}h'),
+        ],
+        if (data.jobCard != null) ...[
+          _buildScoreRow('Critical Jobs', '${data.jobCard!.criticalJobs}'),
+          _buildScoreRow(
+              'Non-Critical Jobs', '${data.jobCard!.nonCriticalJobs}'),
+        ],
+        if (data.cleaning != null)
+          _buildScoreRow('Last Clean', '${data.cleaning!.lastClean} days ago'),
+        if (data.fitness != null)
+          _buildScoreRow(
+              'Fitness Days Remaining', '${data.fitness!.daysRemaining}'),
+        if (data.geometry != null)
+          _buildScoreRow('Distance', '${data.geometry!.distance} km'),
+        if (data.mileage != null) ...[
+          _buildScoreRow('Total KM', '${data.mileage!.totalKm}'),
+          _buildScoreRow('Daily Avg Run', '${data.mileage!.dailyAvgRun} km'),
+          _buildScoreRow('Variance', '${data.mileage!.variance}'),
+        ],
+      ],
+    );
   }
 }
