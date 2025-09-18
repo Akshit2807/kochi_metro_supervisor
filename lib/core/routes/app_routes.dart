@@ -1,7 +1,10 @@
 // lib/core/routes/app_pages.dart
 
 import 'package:get/get.dart';
+import 'package:kochi_metro_supervisor/core/bindings/notification_binding.dart';
+import 'package:kochi_metro_supervisor/presentation/pages/notification/notification_page.dart';
 
+import '../../presentation/pages/schedule/train_detail_page.dart';
 import '../bindings/auth_binding.dart';
 
 import '../bindings/dashboard_binding.dart';
@@ -31,6 +34,10 @@ abstract class AppRoutes {
   static const String schedule = '/schedule';
 
   static const String maintenance = '/maintenance';
+
+  static const String notification = '/notification';
+
+  static const String trainDetails = '/trainDetails';
 }
 
 class AppPages {
@@ -63,6 +70,11 @@ class AppPages {
       name: AppRoutes.schedule,
       page: () => SchedulePage(),
       binding: ScheduleBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.notification,
+      page: () => NotificationPage(),
+      binding: NotificationBinding(),
     ),
   ];
 }

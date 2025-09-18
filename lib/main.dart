@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
-import 'package:kochi_metro_supervisor/presentation/controllers/bottom_nav_controller.dart';
 
 import 'core/theme/app_theme.dart';
 

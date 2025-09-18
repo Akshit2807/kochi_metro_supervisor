@@ -1,21 +1,27 @@
 import 'package:get/get.dart';
+import 'package:kochi_metro_supervisor/domain/usecases/dashboard_usecase.dart';
 
 import '../../data/models/train_model.dart';
-
 import '../../data/models/user_model.dart';
-
 import '../../data/services/storage_service.dart';
-
 import '../../core/constants/app_constants.dart';
+
+// Add these imports
+import 'package:kochi_metro_supervisor/data/models/dashboard_model.dart';
+import 'package:kochi_metro_supervisor/domain/repositories/dashboard_repository.dart';
 
 class DashboardController extends GetxController {
   final isLoading = false.obs;
-
-  final availableTrains = <TrainModel>[].obs;
-
-  final maintenanceTrains = <TrainModel>[].obs;
-
+  final RxInt availableTrains = 25.obs;
+  final RxInt maintenanceTrains = 6.obs;
   final currentUser = Rx<UserModel?>(null);
+
+  // Add observable for dashboard overview
+  final dashboardOverview = Rx<DashboardOverview?>(null);
+
+  // Add repository and usecase
+  late final DashboardRepository dashboardRepository;
+  late final FetchDashboardOverviewUseCase fetchDashboardOverviewUseCase;
 
   @override
   void onInit() {
@@ -23,74 +29,25 @@ class DashboardController extends GetxController {
 
     _loadUserData();
 
-    _loadDummyData();
+    // Initialize repository and usecase
+    dashboardRepository = Get.find<DashboardRepository>();
+    fetchDashboardOverviewUseCase =
+        FetchDashboardOverviewUseCase(dashboardRepository);
+
+    fetchDashboardOverview();
   }
 
   void _loadUserData() {
     final storageService = Get.find<StorageService>();
-
     final userData = storageService.readObject(AppConstants.userDataKey);
-
     if (userData != null) {
       currentUser.value = UserModel.fromJson(userData);
     }
   }
 
-  void _loadDummyData() {
-    // Generate dummy train data
-
-    for (int i = 1; i <= 25; i++) {
-      availableTrains.add(TrainModel(
-        id: 'train_$i',
-        number: 'KM${i.toString().padLeft(3, '0')}',
-        status: 'Operational',
-        currentLocation: _getRandomLocation(),
-        isOperational: true,
-        lastMaintenance: DateTime.now().subtract(Duration(days: i * 2)),
-      ));
-    }
-
-    for (int i = 1; i <= 6; i++) {
-      maintenanceTrains.add(TrainModel(
-        id: 'maintenance_$i',
-        number: 'KM${(25 + i).toString().padLeft(3, '0')}',
-        status: 'Under Maintenance',
-        currentLocation: 'Maintenance Depot',
-        isOperational: false,
-        lastMaintenance: DateTime.now().subtract(Duration(days: i)),
-      ));
-    }
-  }
-
-  String _getRandomLocation() {
-    final locations = [
-      'Aluva',
-      'Kalamassery',
-      'Cochin University',
-      'Pathadipalam',
-      'Edapally',
-      'Changampuzha Park',
-      'Palarivattom',
-      'JLN Stadium',
-      'Kaloor',
-      'Lissie',
-      'MG Road',
-      'Maharajas',
-      'Ernakulam South',
-      'Kadavanthra',
-      'Elamkulam',
-      'Vyttila',
-      'Thaikoodam',
-      'Petta',
-      'Mattancherry',
-    ];
-
-    return locations[DateTime.now().millisecond % locations.length];
-  }
-
-  void refreshData() {
+  Future<void> refreshData() async {
     isLoading.value = true;
-
+    await fetchDashboardOverview();
     Future.delayed(const Duration(seconds: 2), () {
       isLoading.value = false;
 
@@ -100,5 +57,20 @@ class DashboardController extends GetxController {
         snackPosition: SnackPosition.TOP,
       );
     });
+  }
+
+  // Implement the usecase here
+  Future<void> fetchDashboardOverview() async {
+    isLoading.value = true;
+    try {
+      final overview = await fetchDashboardOverviewUseCase();
+      dashboardOverview.value = overview;
+      availableTrains.value = overview.summary.activeTrains.toInt();
+      maintenanceTrains.value = overview.summary.maintenanceTrains.toInt();
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to fetch dashboard overview');
+    } finally {
+      isLoading.value = false;
+    }
   }
 }
