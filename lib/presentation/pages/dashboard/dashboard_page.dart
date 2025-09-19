@@ -33,71 +33,73 @@ class DashboardPage extends GetView<DashboardController> {
                     color: AppTheme.primaryColor,
                   ),
                 )
-              : Container(
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                        Colors.white,
-                        Color(0xffC2FFFF),
-                      ])),
-                  child: Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Center(
-                          child: Image.asset(
-                            "assets/dashboard.png",
-                            fit: BoxFit.cover,
+              : SingleChildScrollView(
+                  child: Container(
+                    decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                          Colors.white,
+                          Color(0xffC2FFFF),
+                        ])),
+                    child: Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: Image.asset(
+                              "assets/dashboard.png",
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                        ),
-                        CustomAppBar(
-                          title: 'Overview',
-                          actions: [
-                            GestureDetector(
-                                onTap: () {
-                                  Get.toNamed(AppRoutes.notification);
-                                },
-                                child: const Icon(
-                                  Icons.notifications_active_outlined,
-                                  color: Colors.black,
-                                  size: 32,
-                                )),
-                            const SizedBox(width: 16),
-                          ],
-                        ),
+                          CustomAppBar(
+                            title: 'Overview',
+                            actions: [
+                              GestureDetector(
+                                  onTap: () {
+                                    Get.toNamed(AppRoutes.notification);
+                                  },
+                                  child: const Icon(
+                                    Icons.notifications_active_outlined,
+                                    color: Colors.black,
+                                    size: 32,
+                                  )),
+                              const SizedBox(width: 16),
+                            ],
+                          ),
 
-                        // Overview cards
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: const OverviewCards(),
-                        ),
+                          // Overview cards
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: const OverviewCards(),
+                          ),
 
-                        const SizedBox(height: 24),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _buildTile(
-                                "Maintenance",
-                                controller.maintenanceTrains.value.toString(),
-                                "assets/icons/maintenance.png"),
-                            _buildTile(
-                                "Cleaning", "3", "assets/icons/cleaning.png"),
-                            _buildTile(
-                                "Operation", "1", "assets/icons/operation.png"),
-                            _buildTile(
-                                "Stand By", "4", "assets/icons/stand.png"),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        ListTile(
-                          title: Text(""),
-                        )
-                        //
-                        // // Train status section
-                        // const TrainStatusSection(),
-                      ],
+                          const SizedBox(height: 24),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              _buildTile(
+                                  "Maintenance",
+                                  controller.maintenanceTrains.value.toString(),
+                                  "assets/icons/maintenance.png"),
+                              _buildTile(
+                                  "Cleaning", "3", "assets/icons/cleaning.png"),
+                              _buildTile("Operation", "1",
+                                  "assets/icons/operation.png"),
+                              _buildTile(
+                                  "Stand By", "4", "assets/icons/stand.png"),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          ListTile(
+                            title: Text(""),
+                          )
+                          //
+                          // // Train status section
+                          // const TrainStatusSection(),
+                        ],
+                      ),
                     ),
                   ),
                 ),
