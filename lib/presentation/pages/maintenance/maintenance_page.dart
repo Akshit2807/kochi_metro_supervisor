@@ -23,7 +23,7 @@ class _MaintenancePageState extends State<MaintenancePage> {
     return GetBuilder<MaintenanceController>(
       builder: (controller) {
         return Scaffold(
-          backgroundColor: const Color(0xFFF5F7FA),
+          backgroundColor: Colors.white,
           appBar: _buildAppBar(controller),
           body: RefreshIndicator(
             onRefresh: () async => controller.refreshData(),
@@ -41,7 +41,9 @@ class _MaintenancePageState extends State<MaintenancePage> {
                 return _buildEmptyView(controller);
               }
 
-              return _buildMainContent(controller);
+              return Container(
+                  color: AppTheme.primaryColor.withValues(alpha: 0.2),
+                  child: _buildMainContent(controller));
             }),
           ),
           bottomNavigationBar: const CustomBottomNavigationBar(),
@@ -53,6 +55,7 @@ class _MaintenancePageState extends State<MaintenancePage> {
   PreferredSizeWidget _buildAppBar(MaintenanceController controller) {
     return AppBar(
       elevation: 0,
+      backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.2),
       foregroundColor: Colors.black,
       title: const Text(
         'Train Maintenance',
@@ -565,36 +568,36 @@ class _MaintenancePageState extends State<MaintenancePage> {
 
               const SizedBox(height: 16),
 
-              // Component Scores Row
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildComponentScore(
-                      'Branding',
-                      train.scoresBySheet.branding,
-                      controller,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildComponentScore(
-                      'Job Card',
-                      train.scoresBySheet.jobCard,
-                      controller,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildComponentScore(
-                      'Cleaning',
-                      train.scoresBySheet.cleaning,
-                      controller,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 12),
+              // // Component Scores Row
+              // Row(
+              //   children: [
+              //     Expanded(
+              //       child: _buildComponentScore(
+              //         'Branding',
+              //         train.scoresBySheet.branding,
+              //         controller,
+              //       ),
+              //     ),
+              //     const SizedBox(width: 12),
+              //     Expanded(
+              //       child: _buildComponentScore(
+              //         'Job Card',
+              //         train.scoresBySheet.jobCard,
+              //         controller,
+              //       ),
+              //     ),
+              //     const SizedBox(width: 12),
+              //     Expanded(
+              //       child: _buildComponentScore(
+              //         'Cleaning',
+              //         train.scoresBySheet.cleaning,
+              //         controller,
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              //
+              // const SizedBox(height: 12),
 
               // Action Row
               Row(

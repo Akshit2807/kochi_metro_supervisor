@@ -64,6 +64,7 @@ class _OverviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double scale = MediaQuery.of(context).size.width;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -71,7 +72,7 @@ class _OverviewCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             spreadRadius: 2,
             offset: const Offset(0, 4),
@@ -87,8 +88,10 @@ class _OverviewCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 20,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: scale * 0.05,
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
                   ),
@@ -100,8 +103,9 @@ class _OverviewCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 32,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: scale * 0.05,
               fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
@@ -109,8 +113,10 @@ class _OverviewCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             subtitle,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: scale * 0.03,
               fontWeight: FontWeight.w600,
               color: Color(0xff808080),
               height: 1.2,

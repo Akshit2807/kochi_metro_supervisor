@@ -35,71 +35,74 @@ class DashboardPage extends GetView<DashboardController> {
                 )
               : SingleChildScrollView(
                   child: Container(
+                    height: MediaQuery.of(context).size.height,
                     decoration: BoxDecoration(
                         gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                          Colors.white,
-                          Color(0xffC2FFFF),
+                          Color(0xff2DBBAD).withValues(alpha: 0.1),
+                          Color(0xff2DBBAD).withValues(alpha: 0.88),
                         ])),
-                    child: Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Center(
-                            child: Image.asset(
-                              "assets/dashboard.png",
-                              fit: BoxFit.cover,
-                            ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child: Image.asset(
+                            "assets/dashboard.png",
+                            fit: BoxFit.cover,
                           ),
-                          CustomAppBar(
-                            title: 'Overview',
-                            actions: [
-                              GestureDetector(
-                                  onTap: () {
-                                    Get.toNamed(AppRoutes.notification);
-                                  },
-                                  child: const Icon(
-                                    Icons.notifications_active_outlined,
-                                    color: Colors.black,
-                                    size: 32,
-                                  )),
-                              const SizedBox(width: 16),
-                            ],
-                          ),
+                        ),
+                        CustomAppBar(
+                          title: 'Overview',
+                          actions: [
+                            GestureDetector(
+                                onTap: () {
+                                  Get.toNamed(AppRoutes.notification);
+                                },
+                                child: const Icon(
+                                  Icons.notifications_active_outlined,
+                                  color: Colors.black,
+                                  size: 32,
+                                )),
+                            const SizedBox(width: 16),
+                          ],
+                        ),
 
-                          // Overview cards
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: const OverviewCards(),
-                          ),
+                        // Overview cards
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: const OverviewCards(),
+                        ),
 
-                          const SizedBox(height: 24),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _buildTile(
-                                  "Maintenance",
-                                  controller.maintenanceTrains.value.toString(),
-                                  "assets/icons/maintenance.png"),
-                              _buildTile(
-                                  "Cleaning", "3", "assets/icons/cleaning.png"),
-                              _buildTile("Operation", "1",
-                                  "assets/icons/operation.png"),
-                              _buildTile(
-                                  "Stand By", "4", "assets/icons/stand.png"),
-                            ],
+                        const SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildTile(
+                                "Maintenance",
+                                controller.maintenanceTrains.value.toString(),
+                                "assets/icons/maintenance.png"),
+                            _buildTile(
+                                "Cleaning", "3", "assets/icons/cleaning.png"),
+                            _buildTile(
+                                "Operation", "1", "assets/icons/operation.png"),
+                            _buildTile(
+                                "Stand By", "4", "assets/icons/stand.png"),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Image.asset(
+                            "assets/ssl.png",
+                            fit: BoxFit.fitWidth,
                           ),
-                          const SizedBox(height: 24),
-                          ListTile(
-                            title: Text(""),
-                          )
-                          //
-                          // // Train status section
-                          // const TrainStatusSection(),
-                        ],
-                      ),
+                        )
+                        //
+                        // // Train status section
+                        // const TrainStatusSection(),
+                      ],
                     ),
                   ),
                 ),
@@ -117,7 +120,7 @@ class DashboardPage extends GetView<DashboardController> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             spreadRadius: 2,
             offset: const Offset(0, 4),
