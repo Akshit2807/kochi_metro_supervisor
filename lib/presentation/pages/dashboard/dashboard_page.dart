@@ -487,17 +487,15 @@ class _GlassButtonState extends State<_GlassButton>
                   Positioned(
                     right: 8,
                     top: 8,
-                    child: TweenAnimationBuilder(
-                      duration: const Duration(milliseconds: 1000),
-                      tween: Tween<double>(begin: 0.8, end: 1.2),
-                      builder: (context, double scale, child) {
+                    child: AnimatedBuilder(
+                      animation: _controller,
+                      builder: (context, child) {
+                        // Create a pulse effect using the controller
+                        final scale = 1.0 + (math.sin(_controller.value * 2 * math.pi) * 0.2);
                         return Transform.scale(
-                          scale: scale,
+                          scale: scale.clamp(0.8, 1.2),  // Ensure valid range
                           child: child,
                         );
-                      },
-                      onEnd: () {
-                        setState(() {});
                       },
                       child: Container(
                         width: 10,
@@ -549,7 +547,7 @@ class _PremiumCardState extends State<_PremiumCard>
   void initState() {
     super.initState();
     _hoverController = AnimationController(
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
   }
