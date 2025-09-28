@@ -7,6 +7,8 @@ import '../../widgets/common/bottom_navigation_bar.dart';
 import '../../../core/theme/app_theme.dart';
 import 'dart:math' as math;
 
+import '../whatif/what_if_page.dart';
+
 class DashboardPage extends GetView<DashboardController> {
   const DashboardPage({super.key});
 
@@ -145,7 +147,6 @@ class _LoadingState extends StatelessWidget {
                 ),
               );
             },
-            onEnd: () {},
           ),
           const SizedBox(height: 24),
           const Text(
@@ -368,7 +369,6 @@ class _AnimatedHeroHeader extends StatelessWidget {
               ),
             );
           },
-          onEnd: () {},
         ),
       );
     });
@@ -408,8 +408,8 @@ class _AnimatedActionButtons extends StatelessWidget {
   }
 }
 
-// Glass Button with Animation
-class _GlassButton extends StatefulWidget {
+// Glass Button with GetX Animation
+class _GlassButton extends GetView {
   final IconData icon;
   final VoidCallback onTap;
   final bool hasNotification;
@@ -423,32 +423,11 @@ class _GlassButton extends StatefulWidget {
   });
 
   @override
-  State<_GlassButton> createState() => _GlassButtonState();
-}
-
-class _GlassButtonState extends State<_GlassButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final RxDouble scale = 1.0.obs;
+
     return TweenAnimationBuilder(
-      duration: Duration(milliseconds: 400 + widget.delay),
+      duration: Duration(milliseconds: 400 + delay),
       tween: Tween<double>(begin: 0, end: 1),
       builder: (context, double value, child) {
         return Transform.scale(
@@ -457,20 +436,14 @@ class _GlassButtonState extends State<_GlassButton>
         );
       },
       child: GestureDetector(
-        onTapDown: (_) => _controller.forward(),
+        onTapDown: (_) => scale.value = 0.9,
         onTapUp: (_) {
-          _controller.reverse();
-          widget.onTap();
+          scale.value = 1.0;
+          onTap();
         },
-        onTapCancel: () => _controller.reverse(),
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            return Transform.scale(
-              scale: 1 - (_controller.value * 0.1),
-              child: child,
-            );
-          },
+        onTapCancel: () => scale.value = 1.0,
+        child: Obx(() => Transform.scale(
+          scale: scale.value,
           child: Container(
             width: 48,
             height: 48,
@@ -493,41 +466,28 @@ class _GlassButtonState extends State<_GlassButton>
               alignment: Alignment.center,
               children: [
                 Icon(
-                  widget.icon,
+                  icon,
                   color: Colors.white,
                   size: 24,
                 ),
-                if (widget.hasNotification)
+                if (hasNotification)
                   Positioned(
                     right: 8,
                     top: 8,
-                    child: TweenAnimationBuilder(
-                      duration: const Duration(milliseconds: 1000),
-                      tween: Tween<double>(begin: 0.8, end: 1.2),
-                      builder: (context, double scale, child) {
-                        return Transform.scale(
-                          scale: scale,
-                          child: child,
-                        );
-                      },
-                      onEnd: () {
-                        setState(() {});
-                      },
-                      child: Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF4757),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFF4757),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
                       ),
                     ),
                   ),
               ],
             ),
           ),
-        ),
+        )),
       ),
     );
   }
@@ -720,7 +680,7 @@ class _PremiumCardState extends State<_PremiumCard>
   }
 }
 
-// Animated Status Grid
+// FIXED: Animated Status Grid - prevent overflow
 class _AnimatedStatusGrid extends StatelessWidget {
   final int maintenanceCount;
 
@@ -728,47 +688,52 @@ class _AnimatedStatusGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _StatusTile(
-          icon: Icons.build_rounded,
-          iconColor: const Color(0xFF667eea),
-          iconBg: const Color(0xFFE8EFFE),
-          label: 'Maintenance',
-          value: maintenanceCount.toString(),
-          index: 0,
-        ),
-        _StatusTile(
-          icon: Icons.cleaning_services_rounded,
-          iconColor: const Color(0xFF00D2A3),
-          iconBg: const Color(0xFFD4F7F0),
-          label: 'Cleaning',
-          value: '3',
-          index: 1,
-        ),
-        _StatusTile(
-          icon: Icons.speed_rounded,
-          iconColor: const Color(0xFFFFAC33),
-          iconBg: const Color(0xFFFFF4E5),
-          label: 'Operation',
-          value: '1',
-          index: 2,
-        ),
-        _StatusTile(
-          icon: Icons.train_rounded,
-          iconColor: const Color(0xFF9BA3B4),
-          iconBg: const Color(0xFFF4F5F7),
-          label: 'Stand By',
-          value: '4',
-          index: 3,
-        ),
-      ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          _StatusTile(
+            icon: Icons.build_rounded,
+            iconColor: const Color(0xFF667eea),
+            iconBg: const Color(0xFFE8EFFE),
+            label: 'Maintenance',
+            value: maintenanceCount.toString(),
+            index: 0,
+          ),
+          const SizedBox(width: 16),
+          _StatusTile(
+            icon: Icons.cleaning_services_rounded,
+            iconColor: const Color(0xFF00D2A3),
+            iconBg: const Color(0xFFD4F7F0),
+            label: 'Cleaning',
+            value: '3',
+            index: 1,
+          ),
+          const SizedBox(width: 16),
+          _StatusTile(
+            icon: Icons.speed_rounded,
+            iconColor: const Color(0xFFFFAC33),
+            iconBg: const Color(0xFFFFF4E5),
+            label: 'Operation',
+            value: '1',
+            index: 2,
+          ),
+          const SizedBox(width: 16),
+          _StatusTile(
+            icon: Icons.train_rounded,
+            iconColor: const Color(0xFF9BA3B4),
+            iconBg: const Color(0xFFF4F5F7),
+            label: 'Stand By',
+            value: '4',
+            index: 3,
+          ),
+        ],
+      ),
     );
   }
 }
 
-// Status Tile with Micro Interactions
+// FIXED: Status Tile with Micro Interactions - fix opacity issue
 class _StatusTile extends StatefulWidget {
   final IconData icon;
   final Color iconColor;
@@ -814,12 +779,12 @@ class _StatusTileState extends State<_StatusTile>
     return TweenAnimationBuilder(
       duration: Duration(milliseconds: 500 + (widget.index * 100)),
       tween: Tween<double>(begin: 0, end: 1),
-      curve: Curves.elasticOut,
+      curve: Curves.easeOut,
       builder: (context, double value, child) {
         return Transform.translate(
           offset: Offset(0, 40 * (1 - value)),
           child: Opacity(
-            opacity: value,
+            opacity: value.clamp(0.0, 1.0),
             child: child,
           ),
         );
@@ -836,47 +801,53 @@ class _StatusTileState extends State<_StatusTile>
               child: child,
             );
           },
-          child: Column(
-            children: [
-              Container(
-                width: 75,
-                height: 75,
-                decoration: BoxDecoration(
-                  color: widget.iconBg,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: widget.iconColor.withOpacity(0.15),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
+          child: SizedBox(
+            width: 75,
+            child: Column(
+              children: [
+                Container(
+                  width: 75,
+                  height: 75,
+                  decoration: BoxDecoration(
+                    color: widget.iconBg,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: widget.iconColor.withOpacity(0.15),
+                        blurRadius: 12,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    widget.icon,
+                    color: widget.iconColor,
+                    size: 36,
+                  ),
                 ),
-                child: Icon(
-                  widget.icon,
-                  color: widget.iconColor,
-                  size: 36,
+                const SizedBox(height: 10),
+                Text(
+                  widget.label,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF2D3142),
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                widget.label,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF2D3142),
+                const SizedBox(height: 2),
+                Text(
+                  widget.value,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: widget.iconColor,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                widget.value,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                  color: widget.iconColor,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -884,7 +855,7 @@ class _StatusTileState extends State<_StatusTile>
   }
 }
 
-// Quick Actions Section
+// Quick Actions Section with Carousel
 class _QuickActionsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -912,28 +883,59 @@ class _QuickActionsSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _QuickActionCard(
-                  icon: Icons.schedule_rounded,
-                  label: 'View Schedule',
-                  color: const Color(0xFF667eea),
-                  onTap: () => Get.toNamed(AppRoutes.schedule),
-                  delay: 0,
+          // Carousel of Quick Action Cards
+          SizedBox(
+            height: 120,
+            child: PageView(
+              controller: PageController(viewportFraction: 0.85),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: _QuickActionCarouselCard(
+                    title: 'What If: Simulate Route',
+                    subtitle: 'Predict cost & time savings.',
+                    icon: Icons.settings_rounded,
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF00D2A3), Color(0xFF5B73E8)],
+                    ),
+                    onTap: () => Get.to(() => const WhatIfPage()),
+                    delay: 0,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _QuickActionCard(
-                  icon: Icons.assessment_rounded,
-                  label: 'Reports',
-                  color: const Color(0xFFf093fb),
-                  onTap: () {},
-                  delay: 100,
+                Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: _QuickActionCarouselCard(
+                    title: 'View Schedule',
+                    subtitle: 'Check upcoming tasks',
+                    icon: Icons.schedule_rounded,
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                    ),
+                    onTap: () => Get.toNamed(AppRoutes.schedule),
+                    delay: 100,
+                  ),
                 ),
-              ),
-            ],
+                Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: _QuickActionCarouselCard(
+                    title: 'View Maintenance Reports',
+                    subtitle: 'Analyze past activities',
+                    icon: Icons.assessment_rounded,
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFFf093fb), Color(0xFFf5576c)],
+                    ),
+                    onTap: () => Get.toNamed(AppRoutes.maintenance),
+                    delay: 200,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -941,27 +943,29 @@ class _QuickActionsSection extends StatelessWidget {
   }
 }
 
-// Quick Action Card
-class _QuickActionCard extends StatefulWidget {
+// New Carousel Card Design
+class _QuickActionCarouselCard extends StatefulWidget {
+  final String title;
+  final String subtitle;
   final IconData icon;
-  final String label;
-  final Color color;
+  final Gradient gradient;
   final VoidCallback onTap;
   final int delay;
 
-  const _QuickActionCard({
+  const _QuickActionCarouselCard({
+    required this.title,
+    required this.subtitle,
     required this.icon,
-    required this.label,
-    required this.color,
+    required this.gradient,
     required this.onTap,
     this.delay = 0,
   });
 
   @override
-  State<_QuickActionCard> createState() => _QuickActionCardState();
+  State<_QuickActionCarouselCard> createState() => _QuickActionCarouselCardState();
 }
 
-class _QuickActionCardState extends State<_QuickActionCard>
+class _QuickActionCarouselCardState extends State<_QuickActionCarouselCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
@@ -1002,48 +1006,76 @@ class _QuickActionCardState extends State<_QuickActionCard>
           animation: _controller,
           builder: (context, child) {
             return Transform.scale(
-              scale: 1 - (_controller.value * 0.05),
+              scale: 1 - (_controller.value * 0.03),
               child: child,
             );
           },
           child: Container(
-            padding: const EdgeInsets.all(16),
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: widget.color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: widget.color.withOpacity(0.2),
-              ),
+              gradient: widget.gradient,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: widget.gradient.colors.first.withOpacity(0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
             child: Row(
               children: [
+                // Icon Container
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: widget.color,
-                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white.withOpacity(0.25),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
                     widget.icon,
                     color: Colors.white,
-                    size: 24,
+                    size: 28,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 16),
+                // Content
                 Expanded(
-                  child: Text(
-                    widget.label,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: widget.color,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        widget.title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          height: 1.2,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        widget.subtitle,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
                 ),
+                // Arrow Icon
                 Icon(
                   Icons.arrow_forward_ios_rounded,
-                  color: widget.color,
-                  size: 16,
+                  color: Colors.white.withOpacity(0.8),
+                  size: 18,
                 ),
               ],
             ),
