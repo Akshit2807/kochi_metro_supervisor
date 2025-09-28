@@ -223,26 +223,26 @@ class MaintenanceController extends GetxController {
               const Divider(height: 18),
 
               // Component Scores
-              Text(
-                'Component Scores',
-                style: Get.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              _buildScoreRow('Branding',
-                  '${getFormattedScore(train.scoresBySheet.branding)}%'),
-              _buildScoreRow('Job Card',
-                  '${getFormattedScore(train.scoresBySheet.jobCard)}%'),
-              _buildScoreRow('Cleaning',
-                  '${getFormattedScore(train.scoresBySheet.cleaning)}%'),
-              _buildScoreRow('Fitness',
-                  '${getFormattedScore(train.scoresBySheet.fitness)}%'),
-              _buildScoreRow('Geometry',
-                  '${getFormattedScore(train.scoresBySheet.geometry)}%'),
-              _buildScoreRow('Mileage',
-                  '${getFormattedScore(train.scoresBySheet.mileage)}%'),
+              // Text(
+              //   'Component Scores',
+              //   style: Get.textTheme.titleMedium?.copyWith(
+              //     fontWeight: FontWeight.w600,
+              //   ),
+              // ),
+              // const SizedBox(height: 10),
+              //
+              // _buildScoreRow('Branding',
+              //     '${getFormattedScore(train.scoresBySheet.branding)}%'),
+              // _buildScoreRow('Job Card',
+              //     '${getFormattedScore(train.scoresBySheet.jobCard)}%'),
+              // _buildScoreRow('Cleaning',
+              //     '${getFormattedScore(train.scoresBySheet.cleaning)}%'),
+              // _buildScoreRow('Fitness',
+              //     '${getFormattedScore(train.scoresBySheet.fitness)}%'),
+              // _buildScoreRow('Geometry',
+              //     '${getFormattedScore(train.scoresBySheet.geometry)}%'),
+              // _buildScoreRow('Mileage',
+              //     '${getFormattedScore(train.scoresBySheet.mileage)}%'),
 
               const SizedBox(height: 10),
 
