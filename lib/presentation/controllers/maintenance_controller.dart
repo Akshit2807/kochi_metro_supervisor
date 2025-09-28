@@ -60,16 +60,24 @@ class MaintenanceController extends GetxController {
 
   Future<void> loadMaintenanceData() async {
     try {
+      print('DEBUG: Starting loadMaintenanceData');
       _isLoading.value = true;
       _errorMessage.value = '';
 
+      print('DEBUG: About to call useCase.execute()');
       final response = await _useCase.execute();
+      print('DEBUG: Got response: $response');
+
       _maintenanceData.value = response;
+      print('DEBUG: Set maintenance data');
 
       // Initialize filtered trains with all trains
       _applyFilters();
+      print(
+          'DEBUG: Applied filters, total filtered trains: ${_filteredTrains.length}');
     } catch (e) {
-      print(e.toString());
+      print('DEBUG: Error occurred: ${e.toString()}');
+      print('DEBUG: Error type: ${e.runtimeType}');
       _errorMessage.value = e.toString();
       Get.snackbar(
         'Error',
@@ -77,7 +85,9 @@ class MaintenanceController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
     } finally {
+      print('DEBUG: Setting isLoading to false');
       _isLoading.value = false;
+      print('DEBUG: isLoading is now: ${_isLoading.value}');
     }
   }
 
