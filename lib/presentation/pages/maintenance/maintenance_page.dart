@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/maintenance_model.dart';
 import '../../controllers/bottom_nav_controller.dart';
 import '../../controllers/maintenance_controller.dart';
 import '../../widgets/common/bottom_navigation_bar.dart';
+import 'dart:math' as math;
 
 class MaintenancePage extends StatefulWidget {
   const MaintenancePage({super.key});
@@ -17,603 +17,336 @@ class MaintenancePage extends StatefulWidget {
 class _MaintenancePageState extends State<MaintenancePage> {
   @override
   Widget build(BuildContext context) {
-    // Update bottom nav index
     final navController = Get.find<BottomNavController>();
     navController.currentIndex.value = 2;
-    return GetBuilder<MaintenanceController>(
-      builder: (controller) {
+
+    return Obx(
+      () {
+        final controller = Get.find<MaintenanceController>();
         return Scaffold(
-          backgroundColor: Colors.white,
-          appBar: _buildAppBar(controller),
+          backgroundColor: const Color(0xFFF8F9FE),
           body: RefreshIndicator(
             onRefresh: () async => controller.refreshData(),
             color: AppTheme.primaryColor,
-            child: Obx(() {
-              if (controller.isLoading) {
-                return _buildLoadingView();
-              }
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                // Premium AppBar
+                SliverAppBar(
+                  expandedHeight: 140,
+                  floating: false,
+                  pinned: true,
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Container(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                        ),
+                      ),
+                      child: Stack(
+                        children: [
+                          // Animated Background Pattern
+                          ...List.generate(5, (index) {
+                            return Positioned(
+                              left: (index * 80.0) - 40,
+                              top: (index * 30.0) - 20,
+                              child: TweenAnimationBuilder(
+                                duration: Duration(
+                                    milliseconds: 2000 + (index * 300)),
+                                tween: Tween<double>(begin: 0, end: 1),
+                                builder: (context, double value, child) {
+                                  return Transform.rotate(
+                                    angle: value * 2 * math.pi,
+                                    child: Opacity(
+                                      opacity: 0.1,
+                                      child: Icon(
+                                        Icons.settings_rounded,
+                                        size: 60,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                onEnd: () => setState(() {}),
+                              ),
+                            );
+                          }),
+                          SafeArea(
+                            child: Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  TweenAnimationBuilder(
+                                    duration: const Duration(milliseconds: 600),
+                                    tween: Tween<double>(begin: 0, end: 1),
+                                    builder: (context, double value, child) {
+                                      return Opacity(
+                                        opacity: value,
+                                        child: Transform.translate(
+                                          offset: Offset(-30 * (1 - value), 0),
+                                          child: child,
+                                        ),
+                                      );
+                                    },
+                                    child: const Text(
+                                      'Maintenance',
+                                      style: TextStyle(
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  TweenAnimationBuilder(
+                                    duration: const Duration(milliseconds: 800),
+                                    tween: Tween<double>(begin: 0, end: 1),
+                                    builder: (context, double value, child) {
+                                      return Opacity(
+                                        opacity: value,
+                                        child: child,
+                                      );
+                                    },
+                                    child: const Text(
+                                      'Priority Management System',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.white70,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  actions: [
+                    TweenAnimationBuilder(
+                      duration: const Duration(milliseconds: 600),
+                      tween: Tween<double>(begin: 0, end: 1),
+                      builder: (context, double value, child) {
+                        return Transform.scale(
+                          scale: value,
+                          child: child,
+                        );
+                      },
+                      child: IconButton(
+                        icon: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.filter_list_rounded),
+                        ),
+                        onPressed: () => _showFilterDialog(controller),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                ),
 
-              if (controller.errorMessage.isNotEmpty) {
-                return _buildErrorView(controller);
-              }
+                // Search Bar
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: _AnimatedSearchBar(controller: controller),
+                  ),
+                ),
 
-              if (controller.maintenanceData == null) {
-                return _buildEmptyView(controller);
-              }
+                // Stats Cards
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: _StatsSection(controller: controller),
+                  ),
+                ),
 
-              return Container(
-                  color: AppTheme.primaryColor.withValues(alpha: 0.2),
-                  child: _buildMainContent(controller));
-            }),
+                // Filter Chips
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: _FilterChipsSection(controller: controller),
+                  ),
+                ),
+
+                // Loading State
+                if (controller.isLoading)
+                  const SliverFillRemaining(
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF667eea),
+                      ),
+                    ),
+                  ),
+
+                // Error State
+                if (!controller.isLoading && controller.errorMessage.isNotEmpty)
+                  SliverFillRemaining(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.error_outline_rounded,
+                            size: 80,
+                            color: Colors.red[300],
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Error loading data',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            controller.errorMessage,
+                            style: TextStyle(color: Colors.grey[600]),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton(
+                            onPressed: () => controller.refreshData(),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF667eea),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 32,
+                                vertical: 16,
+                              ),
+                            ),
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                // Empty State
+                if (!controller.isLoading &&
+                    controller.errorMessage.isEmpty &&
+                    controller.filteredTrains.isEmpty)
+                  SliverFillRemaining(
+                    child: _EmptyState(),
+                  ),
+
+                // Trains List
+                if (!controller.isLoading &&
+                    controller.errorMessage.isEmpty &&
+                    controller.filteredTrains.isNotEmpty)
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final train = controller.filteredTrains[index];
+                          return _PremiumTrainCard(
+                            train: train,
+                            controller: controller,
+                            index: index,
+                          );
+                        },
+                        childCount: controller.filteredTrains.length,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
           bottomNavigationBar: const CustomBottomNavigationBar(),
+          floatingActionButton: _FloatingRefreshButton(
+            onPressed: () => controller.refreshData(),
+          ),
         );
       },
     );
   }
 
-  PreferredSizeWidget _buildAppBar(MaintenanceController controller) {
-    return AppBar(
-      elevation: 0,
-      backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.2),
-      foregroundColor: Colors.black,
-      title: const Text(
-        'Train Maintenance',
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 20,
-        ),
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.filter_list),
-          onPressed: () => _showFilterDialog(controller),
-          tooltip: 'Filter Trains',
-        ),
-      ],
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
+  void _showFilterDialog(MaintenanceController controller) {
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: Container(
-          padding: const EdgeInsets.all(12),
-          child: _buildSearchBar(controller),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSearchBar(MaintenanceController controller) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: TextField(
-        onChanged: controller.setSearchQuery,
-        decoration: InputDecoration(
-          hintText: 'Search trains by ID, priority, or rank...',
-          prefixIcon: const Icon(Icons.search, color: Color(0xFF6B7280)),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 12,
-          ),
-          suffixIcon: Obx(() {
-            return controller.searchQuery.isEmpty
-                ? const SizedBox.shrink()
-                : IconButton(
-                    icon: const Icon(Icons.clear, color: Color(0xFF6B7280)),
-                    onPressed: () => controller.setSearchQuery(''),
-                  );
-          }),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoadingView() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
-          ),
-          SizedBox(height: 16),
-          Text(
-            'Loading maintenance data...',
-            style: TextStyle(
-              color: Color(0xFF6B7280),
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildErrorView(MaintenanceController controller) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Color(0xFFEF4444),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Failed to Load Data',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1F2937),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              controller.errorMessage,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Color(0xFF6B7280),
-                fontSize: 14,
-              ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: controller.refreshData,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1E40AF),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyView(MaintenanceController controller) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.train,
-            size: 64,
-            color: Color(0xFF9CA3AF),
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'No Data Available',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF4B5563),
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'No maintenance data found',
-            style: TextStyle(
-              color: Color(0xFF6B7280),
-            ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: controller.refreshData,
-            icon: const Icon(Icons.refresh),
-            label: const Text('Reload'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1E40AF),
-              foregroundColor: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMainContent(MaintenanceController controller) {
-    return Column(
-      children: [
-        _buildStatsCards(controller),
-        _buildFilterChips(controller),
-        Expanded(
-          child: _buildTrainsList(controller),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatsCards(MaintenanceController controller) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildStatCard(
-              'Total Trains',
-              controller.totalTrains.toString(),
-              Icons.train,
-              const Color(0xFF3B82F6),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildStatCard(
-              'High Priority',
-              controller.highPriorityCount.toString(),
-              Icons.priority_high,
-              const Color(0xFFEF4444),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildStatCard(
-              'Medium Priority',
-              controller.mediumPriorityCount.toString(),
-              Icons.warning,
-              const Color(0xFFF59E0B),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildStatCard(
-              'Low Priority',
-              controller.lowPriorityCount.toString(),
-              Icons.check_circle,
-              const Color(0xFF10B981),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatCard(
-      String title, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Color(0xFF6B7280),
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterChips(MaintenanceController controller) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          const Text(
-            'Filter: ',
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF374151),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Obx(() {
-                return Row(
-                  children: controller.priorityLevels.map((level) {
-                    final isSelected =
-                        controller.selectedPriorityLevel == level;
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: FilterChip(
-                        label: Text(level),
-                        selected: isSelected,
-                        onSelected: (_) => controller.setPriorityFilter(level),
-                        backgroundColor: Colors.white,
-                        selectedColor: const Color(0xFF1E40AF).withOpacity(0.1),
-                        checkmarkColor: const Color(0xFF1E40AF),
-                        labelStyle: TextStyle(
-                          color: isSelected
-                              ? const Color(0xFF1E40AF)
-                              : const Color(0xFF6B7280),
-                          fontWeight:
-                              isSelected ? FontWeight.w600 : FontWeight.normal,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                );
-              }),
-            ),
-          ),
-          Obx(() {
-            return controller.selectedPriorityLevel != 'All' ||
-                    controller.searchQuery.isNotEmpty
-                ? TextButton.icon(
-                    onPressed: controller.clearFilters,
-                    icon: const Icon(Icons.clear, size: 16),
-                    label: const Text('Clear'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: const Color(0xFF6B7280),
-                    ),
-                  )
-                : const SizedBox.shrink();
-          }),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTrainsList(MaintenanceController controller) {
-    return Obx(() {
-      final trains = controller.filteredTrains;
-
-      if (trains.isEmpty) {
-        return _buildEmptyTrainsView();
-      }
-
-      return ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: trains.length,
-        itemBuilder: (context, index) {
-          final train = trains[index];
-          return _buildTrainCard(train, controller);
-        },
-      );
-    });
-  }
-
-  Widget _buildEmptyTrainsView() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.search_off,
-            size: 48,
-            color: Color(0xFF9CA3AF),
-          ),
-          SizedBox(height: 16),
-          Text(
-            'No trains found',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF6B7280),
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Try adjusting your filters or search terms',
-            style: TextStyle(
-              color: Color(0xFF9CA3AF),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTrainCard(
-      TrainPriority train, MaintenanceController controller) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: train.priorityColor.withOpacity(0.2),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => controller.showTrainDetails(train),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(24),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: train.priorityColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(
-                          Icons.train,
-                          color: train.priorityColor,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Train ${train.trainId}',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF1F2937),
-                            ),
-                          ),
-                          Text(
-                            'Rank #${train.priorityRank}',
-                            style: const TextStyle(
-                              color: Color(0xFF6B7280),
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: train.priorityColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: train.priorityColor.withOpacity(0.3),
-                      ),
-                    ),
-                    child: Text(
-                      train.priorityLevel,
-                      style: TextStyle(
-                        color: train.priorityColor,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                ],
+              const Text(
+                'Filter Trains',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
-
-              const SizedBox(height: 16),
-
-              // Score Progress Bar
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Maintenance Score',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF374151),
-                        ),
-                      ),
-                      Text(
-                        '${controller.getFormattedScore(train.finalScore)}%',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: train.priorityColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  LinearProgressIndicator(
-                    value: train.finalScore,
-                    backgroundColor: train.priorityColor.withOpacity(0.1),
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(train.priorityColor),
-                  ),
-                ],
+              const SizedBox(height: 24),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: controller.priorityLevels.map((level) {
+                  final isSelected = controller.selectedPriorityLevel == level;
+                  return FilterChip(
+                    label: Text(level),
+                    selected: isSelected,
+                    onSelected: (_) {
+                      controller.setPriorityFilter(level);
+                      setState(() {});
+                    },
+                    backgroundColor: Colors.grey[100],
+                    selectedColor: const Color(0xFF667eea).withOpacity(0.2),
+                    checkmarkColor: const Color(0xFF667eea),
+                    labelStyle: TextStyle(
+                      color: isSelected
+                          ? const Color(0xFF667eea)
+                          : Colors.grey[700],
+                      fontWeight:
+                          isSelected ? FontWeight.w700 : FontWeight.w600,
+                    ),
+                  );
+                }).toList(),
               ),
-
-              const SizedBox(height: 16),
-
-              // // Component Scores Row
-              // Row(
-              //   children: [
-              //     Expanded(
-              //       child: _buildComponentScore(
-              //         'Branding',
-              //         train.scoresBySheet.branding,
-              //         controller,
-              //       ),
-              //     ),
-              //     const SizedBox(width: 12),
-              //     Expanded(
-              //       child: _buildComponentScore(
-              //         'Job Card',
-              //         train.scoresBySheet.jobCard,
-              //         controller,
-              //       ),
-              //     ),
-              //     const SizedBox(width: 12),
-              //     Expanded(
-              //       child: _buildComponentScore(
-              //         'Cleaning',
-              //         train.scoresBySheet.cleaning,
-              //         controller,
-              //       ),
-              //     ),
-              //   ],
-              // ),
-              //
-              // const SizedBox(height: 12),
-
-              // Action Row
+              const SizedBox(height: 24),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Tap for details',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        controller.clearFilters();
+                        Get.back();
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text('Clear'),
                     ),
                   ),
-                  Icon(
-                    Icons.arrow_forward_ios,
-                    size: 14,
-                    color: Colors.grey[400],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Get.back(),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: const Color(0xFF667eea),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text('Apply'),
+                    ),
                   ),
                 ],
               ),
@@ -623,96 +356,600 @@ class _MaintenancePageState extends State<MaintenancePage> {
       ),
     );
   }
+}
 
-  Widget _buildComponentScore(
-    String label,
-    double score,
-    MaintenanceController controller,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Color(0xFF6B7280),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          '${controller.getFormattedScore(score)}%',
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1F2937),
-          ),
-        ),
-      ],
-    );
-  }
+// Animated Search Bar
+class _AnimatedSearchBar extends StatelessWidget {
+  final MaintenanceController controller;
 
-  void _showFilterDialog(MaintenanceController controller) {
-    Get.dialog(
-      AlertDialog(
-        title: const Text('Filter Trains'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Priority Level',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Obx(() {
-              return Wrap(
-                spacing: 8,
-                children: controller.priorityLevels.map((level) {
-                  final isSelected = controller.selectedPriorityLevel == level;
-                  return FilterChip(
-                    label: Text(level),
-                    selected: isSelected,
-                    onSelected: (_) => controller.setPriorityFilter(level),
-                    backgroundColor: Colors.grey[100],
-                    selectedColor: const Color(0xFF1E40AF).withOpacity(0.1),
-                    checkmarkColor: const Color(0xFF1E40AF),
-                  );
-                }).toList(),
-              );
-            }),
-            const SizedBox(height: 16),
-            const Text(
-              'Analysis Info',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Last Updated: ${controller.getFormattedTimestamp()}',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 14,
-              ),
-            ),
-            Text(
-              'Total Trains: ${controller.totalTrains}',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 14,
-              ),
+  const _AnimatedSearchBar({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder(
+      duration: const Duration(milliseconds: 600),
+      tween: Tween<double>(begin: 0, end: 1),
+      builder: (context, double value, child) {
+        return Transform.translate(
+          offset: Offset(0, -20 * (1 - value)),
+          child: Opacity(
+            opacity: value,
+            child: child,
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: controller.clearFilters,
-            child: const Text('Clear Filters'),
+        child: TextField(
+          onChanged: controller.setSearchQuery,
+          decoration: InputDecoration(
+            hintText: 'Search trains...',
+            prefixIcon:
+                const Icon(Icons.search_rounded, color: Color(0xFF667eea)),
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.all(16),
+            suffixIcon: controller.searchQuery.isEmpty
+                ? const SizedBox.shrink()
+                : IconButton(
+                    icon: const Icon(Icons.clear_rounded),
+                    onPressed: () => controller.setSearchQuery(''),
+                  ),
           ),
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Close'),
+        ),
+      ),
+    );
+  }
+}
+
+// Stats Section
+class _StatsSection extends StatelessWidget {
+  final MaintenanceController controller;
+
+  const _StatsSection({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder(
+      duration: const Duration(milliseconds: 800),
+      tween: Tween<double>(begin: 0, end: 1),
+      builder: (context, double value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.scale(
+            scale: value,
+            child: child,
+          ),
+        );
+      },
+      child: Row(
+        children: [
+          _StatCard(
+            label: 'High',
+            value: controller.highPriorityCount.toString(),
+            color: const Color(0xFFFF6B6B),
+            icon: Icons.priority_high_rounded,
+            index: 0,
+          ),
+          const SizedBox(width: 12),
+          _StatCard(
+            label: 'Medium',
+            value: controller.mediumPriorityCount.toString(),
+            color: const Color(0xFFFFAC33),
+            icon: Icons.warning_rounded,
+            index: 1,
+          ),
+          const SizedBox(width: 12),
+          _StatCard(
+            label: 'Low',
+            value: controller.lowPriorityCount.toString(),
+            color: const Color(0xFF00D2A3),
+            icon: Icons.check_circle_rounded,
+            index: 2,
           ),
         ],
+      ),
+    );
+  }
+}
+
+// Stat Card
+class _StatCard extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+  final IconData icon;
+  final int index;
+
+  const _StatCard({
+    required this.label,
+    required this.value,
+    required this.color,
+    required this.icon,
+    required this.index,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: TweenAnimationBuilder(
+        duration: Duration(milliseconds: 600 + (index * 100)),
+        tween: Tween<double>(begin: 0, end: 1),
+        builder: (context, double value, child) {
+          return Transform.translate(
+            offset: Offset(0, 20 * (1 - value)),
+            child: Opacity(
+              opacity: value,
+              child: child,
+            ),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: color.withOpacity(0.3)),
+          ),
+          child: Column(
+            children: [
+              Icon(icon, color: color, size: 28),
+              const SizedBox(height: 8),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: color,
+                ),
+              ),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Filter Chips Section
+class _FilterChipsSection extends StatelessWidget {
+  final MaintenanceController controller;
+
+  const _FilterChipsSection({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder(
+      duration: const Duration(milliseconds: 800),
+      tween: Tween<double>(begin: 0, end: 1),
+      builder: (context, double value, child) {
+        return Opacity(
+          opacity: value,
+          child: child,
+        );
+      },
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: Row(
+          children: controller.priorityLevels.asMap().entries.map((entry) {
+            final index = entry.key;
+            final level = entry.value;
+            final isSelected = controller.selectedPriorityLevel == level;
+
+            return TweenAnimationBuilder(
+              duration: Duration(milliseconds: 400 + (index * 100)),
+              tween: Tween<double>(begin: 0, end: 1),
+              builder: (context, double value, child) {
+                return Transform.scale(
+                  scale: value,
+                  child: child,
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: FilterChip(
+                  label: Text(level),
+                  selected: isSelected,
+                  onSelected: (_) => controller.setPriorityFilter(level),
+                  backgroundColor: Colors.white,
+                  selectedColor: const Color(0xFF667eea).withOpacity(0.2),
+                  checkmarkColor: const Color(0xFF667eea),
+                  side: BorderSide(
+                    color: isSelected
+                        ? const Color(0xFF667eea)
+                        : Colors.grey.withOpacity(0.2),
+                  ),
+                  labelStyle: TextStyle(
+                    color:
+                        isSelected ? const Color(0xFF667eea) : Colors.grey[700],
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+}
+
+// Premium Train Card
+class _PremiumTrainCard extends StatefulWidget {
+  final TrainPriority train;
+  final MaintenanceController controller;
+  final int index;
+
+  const _PremiumTrainCard({
+    required this.train,
+    required this.controller,
+    required this.index,
+  });
+
+  @override
+  State<_PremiumTrainCard> createState() => _PremiumTrainCardState();
+}
+
+class _PremiumTrainCardState extends State<_PremiumTrainCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder(
+      duration: Duration(milliseconds: 400 + (widget.index * 80)),
+      tween: Tween<double>(begin: 0, end: 1),
+      builder: (context, double value, child) {
+        return Transform.translate(
+          offset: Offset(50 * (1 - value), 0),
+          child: Opacity(
+            opacity: value,
+            child: child,
+          ),
+        );
+      },
+      child: GestureDetector(
+        onTapDown: (_) => _controller.forward(),
+        onTapUp: (_) {
+          _controller.reverse();
+          widget.controller.showTrainDetails(widget.train);
+        },
+        onTapCancel: () => _controller.reverse(),
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            return Transform.scale(
+              scale: 1 - (_controller.value * 0.03),
+              child: child,
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: widget.train.priorityColor.withOpacity(0.3),
+                width: 2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: widget.train.priorityColor.withOpacity(0.1),
+                  blurRadius: 15,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: widget.train.priorityColor.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Icon(
+                        Icons.train_rounded,
+                        color: widget.train.priorityColor,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Train ${widget.train.trainId}',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF2D3142),
+                            ),
+                          ),
+                          Text(
+                            'Priority Rank #${widget.train.priorityRank}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: widget.train.priorityColor.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: widget.train.priorityColor.withOpacity(0.3),
+                        ),
+                      ),
+                      child: Text(
+                        widget.train.priorityLevel,
+                        style: TextStyle(
+                          color: widget.train.priorityColor,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Maintenance Score',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${widget.controller.getFormattedScore(widget.train.finalScore)}%',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                              color: widget.train.priorityColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 1,
+                      height: 40,
+                      color: Colors.grey[200],
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Weighted Score',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${widget.controller.getFormattedScore(widget.train.weightedScore)}%',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF2D3142),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: LinearProgressIndicator(
+                    value: widget.train.finalScore,
+                    backgroundColor: Colors.grey[200],
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      widget.train.priorityColor,
+                    ),
+                    minHeight: 8,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Empty State
+class _EmptyState extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          TweenAnimationBuilder(
+            duration: const Duration(milliseconds: 1000),
+            tween: Tween<double>(begin: 0, end: 1),
+            builder: (context, double value, child) {
+              return Transform.scale(
+                scale: value,
+                child: child,
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.search_off_rounded,
+                size: 80,
+                color: Colors.grey[400],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'No trains found',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF2D3142),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Try adjusting your filters or search',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Floating Refresh Button
+class _FloatingRefreshButton extends StatefulWidget {
+  final VoidCallback onPressed;
+
+  const _FloatingRefreshButton({required this.onPressed});
+
+  @override
+  State<_FloatingRefreshButton> createState() => _FloatingRefreshButtonState();
+}
+
+class _FloatingRefreshButtonState extends State<_FloatingRefreshButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder(
+      duration: const Duration(milliseconds: 800),
+      tween: Tween<double>(begin: 0, end: 1),
+      builder: (context, double value, child) {
+        return Transform.scale(
+          scale: value,
+          child: child,
+        );
+      },
+      child: GestureDetector(
+        onTapDown: (_) => _controller.forward(),
+        onTapUp: (_) {
+          _controller.reverse();
+          widget.onPressed();
+        },
+        onTapCancel: () => _controller.reverse(),
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            return Transform.scale(
+              scale: 1 - (_controller.value * 0.1),
+              child: child,
+            );
+          },
+          child: Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF667eea).withOpacity(0.4),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.refresh_rounded,
+              color: Colors.white,
+              size: 28,
+            ),
+          ),
+        ),
       ),
     );
   }

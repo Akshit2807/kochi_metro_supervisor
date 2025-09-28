@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
-
 import '../../controllers/dashboard_controller.dart';
-
 import '../../../core/theme/app_theme.dart';
 
 class OverviewCards extends GetView<DashboardController> {
@@ -17,22 +14,38 @@ class OverviewCards extends GetView<DashboardController> {
           Row(
             children: [
               Expanded(
-                child: _OverviewCard(
+                child: _EnhancedOverviewCard(
                   title: 'Available Trains',
                   value: controller.availableTrains.value.toString(),
                   subtitle: 'Fitness Valid',
-                  icon: Icons.train,
-                  color: AppTheme.successColor,
+                  icon: Icons.train_rounded,
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFF56CCF2),
+                      Color(0xFF2F80ED),
+                    ],
+                  ),
+                  index: 0,
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: _OverviewCard(
-                  title: 'Trains for Maintenance',
+                child: _EnhancedOverviewCard(
+                  title: 'Maintenance',
                   value: controller.maintenanceTrains.value.toString(),
-                  subtitle: 'Pending Cleaning\nMaintenance',
-                  icon: Icons.build,
-                  color: AppTheme.warningColor,
+                  subtitle: 'Pending Service',
+                  icon: Icons.build_rounded,
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFFF093FB),
+                      Color(0xFFF5576C),
+                    ],
+                  ),
+                  index: 1,
                 ),
               ),
             ],
@@ -43,86 +56,182 @@ class OverviewCards extends GetView<DashboardController> {
   }
 }
 
-class _OverviewCard extends StatelessWidget {
+class _EnhancedOverviewCard extends StatefulWidget {
   final String title;
-
   final String value;
-
   final String subtitle;
-
   final IconData icon;
+  final Gradient gradient;
+  final int index;
 
-  final Color color;
-
-  const _OverviewCard({
+  const _EnhancedOverviewCard({
     required this.title,
     required this.value,
     required this.subtitle,
     required this.icon,
-    required this.color,
+    required this.gradient,
+    required this.index,
   });
 
   @override
+  State<_EnhancedOverviewCard> createState() => _EnhancedOverviewCardState();
+}
+
+class _EnhancedOverviewCardState extends State<_EnhancedOverviewCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _rotateAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: Duration(milliseconds: 800 + (widget.index * 200)),
+      vsync: this,
+    );
+
+    _scaleAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.elasticOut,
+    );
+
+    _rotateAnimation = Tween<double>(begin: -0.1, end: 0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    double scale = MediaQuery.of(context).size.width;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 8,
-            spreadRadius: 2,
-            offset: const Offset(0, 4),
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: RotationTransition(
+        turns: _rotateAnimation,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: widget.gradient,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: widget.gradient.colors.first.withOpacity(0.4),
+                blurRadius: 15,
+                spreadRadius: 2,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Stack(
             children: [
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: scale * 0.05,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
+              // Background Pattern
+              Positioned(
+                right: -20,
+                top: -20,
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.1),
                   ),
                 ),
               ),
-              Icon(icon, color: color, size: 20),
+              Positioned(
+                right: -10,
+                bottom: -10,
+                child: Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.05),
+                  ),
+                ),
+              ),
+
+              // Content
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.title,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          widget.icon,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  TweenAnimationBuilder(
+                    duration: const Duration(milliseconds: 1000),
+                    tween: IntTween(begin: 0, end: int.parse(widget.value)),
+                    builder: (context, int value, child) {
+                      return Text(
+                        value.toString(),
+                        style: const TextStyle(
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          height: 1,
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          widget.subtitle,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: scale * 0.05,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: scale * 0.03,
-              fontWeight: FontWeight.w600,
-              color: Color(0xff808080),
-              height: 1.2,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
