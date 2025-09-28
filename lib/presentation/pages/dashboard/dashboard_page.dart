@@ -85,6 +85,11 @@ class DashboardPage extends GetView<DashboardController> {
 
                             const SizedBox(height: 24),
 
+                            Image.asset(
+                              "assets/ssl.png",
+                              fit: BoxFit.fitWidth,
+                            ),
+                            const SizedBox(height: 24),
                             // Quick Actions Section
                             _QuickActionsSection(),
 

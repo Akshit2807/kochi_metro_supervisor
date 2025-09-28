@@ -247,7 +247,7 @@ class MaintenanceController extends GetxController {
               const SizedBox(height: 10),
 
               // Original Data Section (if available)
-              if (train.originalData != null) ...[
+              ...[
                 Text(
                   'Original Data',
                   style: Get.textTheme.titleMedium?.copyWith(
