@@ -9,7 +9,7 @@ class OverviewCards extends GetView<DashboardController> {
   @override
   Widget build(BuildContext context) {
     return Obx(
-          () => Column(
+      () => Column(
         children: [
           Row(
             children: [

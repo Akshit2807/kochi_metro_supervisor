@@ -18,79 +18,88 @@ class DashboardPage extends GetView<DashboardController> {
         onRefresh: () async => controller.refreshData(),
         color: AppTheme.primaryColor,
         child: Obx(
-              () => controller.isLoading.value
+          () => controller.isLoading.value
               ? const _LoadingState()
               : CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              // Animated Hero Header
-              SliverToBoxAdapter(
-                child: _AnimatedHeroHeader(),
-              ),
+                  physics: const BouncingScrollPhysics(),
+                  slivers: [
+                    // Animated Hero Header
+                    SliverToBoxAdapter(
+                      child: _AnimatedHeroHeader(),
+                    ),
 
-              // Main Cards Section
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _PremiumCard(
-                              title: 'Available\nTrains',
-                              value: controller.availableTrains.value.toString(),
-                              subtitle: 'Fitness Valid',
-                              icon: Icons.train_rounded,
-                              gradient: const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                              ),
-                              delay: 0,
+                    // Main Cards Section
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _PremiumCard(
+                                    title: 'Available\nTrains',
+                                    value: controller.availableTrains.value
+                                        .toString(),
+                                    subtitle: 'Fitness Valid',
+                                    icon: Icons.train_rounded,
+                                    gradient: const LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Color(0xFF667eea),
+                                        Color(0xFF764ba2)
+                                      ],
+                                    ),
+                                    delay: 0,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: _PremiumCard(
+                                    title: 'Under\nMaintenance',
+                                    value: controller.maintenanceTrains.value
+                                        .toString(),
+                                    subtitle: 'Pending Service',
+                                    icon: Icons.build_rounded,
+                                    gradient: const LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Color(0xFFf093fb),
+                                        Color(0xFFf5576c)
+                                      ],
+                                    ),
+                                    delay: 200,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _PremiumCard(
-                              title: 'Under\nMaintenance',
-                              value: controller.maintenanceTrains.value.toString(),
-                              subtitle: 'Pending Service',
-                              icon: Icons.build_rounded,
-                              gradient: const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [Color(0xFFf093fb), Color(0xFFf5576c)],
-                              ),
-                              delay: 200,
+                            const SizedBox(height: 24),
+
+                            // Status Grid with Glass Effect
+                            _AnimatedStatusGrid(
+                              maintenanceCount:
+                                  controller.maintenanceTrains.value,
                             ),
-                          ),
-                        ],
+
+                            const SizedBox(height: 24),
+
+                            // Quick Actions Section
+                            _QuickActionsSection(),
+
+                            const SizedBox(height: 24),
+
+                            // Activity Timeline
+                            _ActivityTimeline(),
+
+                            const SizedBox(height: 100),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 24),
-
-                      // Status Grid with Glass Effect
-                      _AnimatedStatusGrid(
-                        maintenanceCount: controller.maintenanceTrains.value,
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Quick Actions Section
-                      _QuickActionsSection(),
-
-                      const SizedBox(height: 24),
-
-                      // Activity Timeline
-                      _ActivityTimeline(),
-
-                      const SizedBox(height: 100),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
         ),
       ),
       bottomNavigationBar: const CustomBottomNavigationBar(),
