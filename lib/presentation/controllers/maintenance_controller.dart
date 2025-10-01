@@ -37,17 +37,15 @@ class MaintenanceController extends GetxController {
   }
 
   int get highPriorityCount {
-    return maintenanceData?.data.summaryByPriorityLevel.highPriority.length ??
-        0;
+    return _getCount("High");
   }
 
   int get mediumPriorityCount {
-    return maintenanceData?.data.summaryByPriorityLevel.mediumPriority.length ??
-        0;
+    return _getCount("Medium");
   }
 
   int get lowPriorityCount {
-    return maintenanceData?.data.summaryByPriorityLevel.lowPriority.length ?? 0;
+    return _getCount("Low");
   }
 
   List<String> get priorityLevels => ['All', 'High', 'Medium', 'Low'];
@@ -131,6 +129,19 @@ class MaintenanceController extends GetxController {
     }
 
     _filteredTrains.value = trains;
+  }
+
+  int _getCount(String query) {
+    var trains = List<TrainPriority>.from(allTrains);
+
+    // Sort by priority rank
+    trains = _useCase.sortTrainsByPriority(trains);
+
+    // Apply search filter
+
+    trains = _useCase.searchTrains(trains, query);
+
+    return trains.length;
   }
 
   TrainPriority? getTrainById(String trainId) {

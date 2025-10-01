@@ -15,6 +15,8 @@ class MaintenanceService {
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
+        print(
+            "high on service : ${jsonData['data']['summary_by_priority_level']['high_priority'].length.toString()}");
         return MaintenanceResponse.fromJson(jsonData);
       } else {
         throw Exception(

@@ -9,8 +9,7 @@ class WhatIfPage extends StatefulWidget {
   State<WhatIfPage> createState() => _WhatIfPageState();
 }
 
-class _WhatIfPageState extends State<WhatIfPage>
-    with TickerProviderStateMixin {
+class _WhatIfPageState extends State<WhatIfPage> with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
@@ -96,7 +95,8 @@ class _WhatIfPageState extends State<WhatIfPage>
                         left: (index * 60.0) - 30,
                         top: (index * 25.0) - 15,
                         child: TweenAnimationBuilder(
-                          duration: Duration(milliseconds: 2000 + (index * 300)),
+                          duration:
+                              Duration(milliseconds: 2000 + (index * 300)),
                           tween: Tween<double>(begin: 0, end: 1),
                           builder: (context, double value, child) {
                             return Transform.rotate(
@@ -159,7 +159,8 @@ class _WhatIfPageState extends State<WhatIfPage>
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+                child:
+                    const Icon(Icons.arrow_back_rounded, color: Colors.white),
               ),
               onPressed: () => Get.back(),
             ),
@@ -293,87 +294,95 @@ class _WhatIfPageState extends State<WhatIfPage>
 
   Widget _buildSummaryCard(WhatIfController controller) {
     return Obx(() => Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            controller.isValid
-                ? const Color(0xFF00D2A3).withOpacity(0.1)
-                : const Color(0xFFFF6B6B).withOpacity(0.1),
-            controller.isValid
-                ? const Color(0xFF5B73E8).withOpacity(0.1)
-                : const Color(0xFFFF6B6B).withOpacity(0.1),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: controller.isValid
-              ? const Color(0xFF00D2A3).withOpacity(0.3)
-              : const Color(0xFFFF6B6B).withOpacity(0.3),
-          width: 2,
-        ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildEditableSummaryItem(
-                'Total Trains',
-                controller.totalTrains,
-                Icons.train_rounded,
-                const Color(0xFF2D3142),
-                controller.incrementTotal,
-                controller.decrementTotal,
-              ),
-              _buildSummaryItem(
-                'Allocated',
-                controller.allocatedTrains.toString(),
-                Icons.assignment_turned_in_rounded,
-                controller.isValid ? const Color(0xFF00D2A3) : const Color(0xFFFF6B6B),
-              ),
-              _buildSummaryItem(
-                'Remaining',
-                controller.remainingTrains.toString(),
-                Icons.inventory_rounded,
-                controller.remainingTrains >= 0 ? const Color(0xFF667eea) : const Color(0xFFFF6B6B),
-              ),
-            ],
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                controller.isValid
+                    ? const Color(0xFF00D2A3).withOpacity(0.1)
+                    : const Color(0xFFFF6B6B).withOpacity(0.1),
+                controller.isValid
+                    ? const Color(0xFF5B73E8).withOpacity(0.1)
+                    : const Color(0xFFFF6B6B).withOpacity(0.1),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: controller.isValid
+                  ? const Color(0xFF00D2A3).withOpacity(0.3)
+                  : const Color(0xFFFF6B6B).withOpacity(0.3),
+              width: 2,
+            ),
           ),
-          if (!controller.isValid) ...[
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFF6B6B).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFFF6B6B).withOpacity(0.3)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Icon(Icons.warning_rounded, color: const Color(0xFFFF6B6B), size: 16),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Exceeds total trains by ${-controller.remainingTrains}',
-                    style: const TextStyle(
-                      color: Color(0xFFFF6B6B),
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
-                    ),
+                  _buildEditableSummaryItem(
+                    'Total Trains',
+                    controller.totalTrains,
+                    Icons.train_rounded,
+                    const Color(0xFF2D3142),
+                    controller.incrementTotal,
+                    controller.decrementTotal,
+                  ),
+                  _buildSummaryItem(
+                    'Allocated',
+                    controller.allocatedTrains.toString(),
+                    Icons.assignment_turned_in_rounded,
+                    controller.isValid
+                        ? const Color(0xFF00D2A3)
+                        : const Color(0xFFFF6B6B),
+                  ),
+                  _buildSummaryItem(
+                    'Remaining',
+                    controller.remainingTrains.toString(),
+                    Icons.inventory_rounded,
+                    controller.remainingTrains >= 0
+                        ? const Color(0xFF667eea)
+                        : const Color(0xFFFF6B6B),
                   ),
                 ],
               ),
-            ),
-          ],
-        ],
-      ),
-    ));
+              if (!controller.isValid) ...[
+                const SizedBox(height: 16),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFF6B6B).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                        color: const Color(0xFFFF6B6B).withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.warning_rounded,
+                          color: const Color(0xFFFF6B6B), size: 16),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Exceeds total trains by ${-controller.remainingTrains}',
+                        style: const TextStyle(
+                          color: Color(0xFFFF6B6B),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ));
   }
 
-  Widget _buildSummaryItem(String label, String value, IconData icon, Color color) {
+  Widget _buildSummaryItem(
+      String label, String value, IconData icon, Color color) {
     return Column(
       children: [
         Container(
@@ -407,198 +416,198 @@ class _WhatIfPageState extends State<WhatIfPage>
   }
 
   Widget _buildEditableSummaryItem(
-      String label,
-      RxInt valueObx,
-      IconData icon,
-      Color color,
-      VoidCallback onIncrement,
-      VoidCallback onDecrement,
-      ) {
+    String label,
+    RxInt valueObx,
+    IconData icon,
+    Color color,
+    VoidCallback onIncrement,
+    VoidCallback onDecrement,
+  ) {
     return Obx(() => Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: color, size: 24),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF7F8C8D),
-          ),
-        ),
-        const SizedBox(height: 4),
-
-        // Editable total trains with controls
-        Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            GestureDetector(
-              onTap: onDecrement,
-              child: Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Icon(
-                  Icons.remove,
-                  size: 14,
-                  color: color,
-                ),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
               ),
+              child: Icon(icon, color: color, size: 24),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(height: 8),
             Text(
-              valueObx.value.toString(),
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w900,
-                color: color,
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF7F8C8D),
               ),
             ),
-            const SizedBox(width: 8),
-            GestureDetector(
-              onTap: onIncrement,
-              child: Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Icon(
-                  Icons.add,
-                  size: 14,
-                  color: color,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Tap +/- to adjust',
-          style: TextStyle(
-            fontSize: 9,
-            fontWeight: FontWeight.w500,
-            color: color.withOpacity(0.6),
-          ),
-        ),
-      ],
-    ));
-  }
+            const SizedBox(height: 4),
 
-  Widget _buildTrainCategoryCard(
-      String title,
-      IconData icon,
-      Color color,
-      RxInt valueObx,
-      VoidCallback onIncrement,
-      VoidCallback onDecrement,
-      ) {
-    return Obx(() => Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: color, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            // Editable total trains with controls
+            Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF2D3142),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${valueObx.value} trains assigned',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF7F8C8D),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Row(
-            children: [
-              _buildControlButton(
-                Icons.remove_rounded,
-                    () => onDecrement(),
-                valueObx.value > 0,
-                color,
-              ),
-              const SizedBox(width: 12),
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Text(
-                    valueObx.value.toString(),
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
+                GestureDetector(
+                  onTap: onDecrement,
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Icon(
+                      Icons.remove,
+                      size: 14,
                       color: color,
                     ),
                   ),
                 ),
+                const SizedBox(width: 8),
+                Text(
+                  valueObx.value.toString(),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: onIncrement,
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Icon(
+                      Icons.add,
+                      size: 14,
+                      color: color,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Tap +/- to adjust',
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.w500,
+                color: color.withOpacity(0.6),
               ),
-              const SizedBox(width: 12),
-              _buildControlButton(
-                Icons.add_rounded,
-                    () => onIncrement(),
-                true,
-                color,
+            ),
+          ],
+        ));
+  }
+
+  Widget _buildTrainCategoryCard(
+    String title,
+    IconData icon,
+    Color color,
+    RxInt valueObx,
+    VoidCallback onIncrement,
+    VoidCallback onDecrement,
+  ) {
+    return Obx(() => Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
-        ],
-      ),
-    ));
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: color, size: 24),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF2D3142),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${valueObx.value} trains assigned',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF7F8C8D),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Row(
+                children: [
+                  _buildControlButton(
+                    Icons.remove_rounded,
+                    () => onDecrement(),
+                    valueObx.value > 0,
+                    color,
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Center(
+                      child: Text(
+                        valueObx.value.toString(),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: color,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  _buildControlButton(
+                    Icons.add_rounded,
+                    () => onIncrement(),
+                    true,
+                    color,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ));
   }
 
   Widget _buildControlButton(
-      IconData icon,
-      VoidCallback onTap,
-      bool enabled,
-      Color color,
-      ) {
+    IconData icon,
+    VoidCallback onTap,
+    bool enabled,
+    Color color,
+  ) {
     return GestureDetector(
       onTap: enabled ? onTap : null,
       child: AnimatedContainer(
@@ -608,13 +617,15 @@ class _WhatIfPageState extends State<WhatIfPage>
         decoration: BoxDecoration(
           color: enabled ? color : Colors.grey[300],
           borderRadius: BorderRadius.circular(12),
-          boxShadow: enabled ? [
-            BoxShadow(
-              color: color.withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ] : [],
+          boxShadow: enabled
+              ? [
+                  BoxShadow(
+                    color: color.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : [],
         ),
         child: Icon(
           icon,
@@ -627,63 +638,70 @@ class _WhatIfPageState extends State<WhatIfPage>
 
   Widget _buildSimulationButton(WhatIfController controller) {
     return Obx(() => Container(
-      width: double.infinity,
-      height: 56,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: controller.isValid
-              ? [const Color(0xFF00D2A3), const Color(0xFF5B73E8)]
-              : [Colors.grey[400]!, Colors.grey[500]!],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: controller.isValid ? [
-          BoxShadow(
-            color: const Color(0xFF00D2A3).withOpacity(0.4),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+          width: double.infinity,
+          height: 56,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: controller.isValid
+                  ? [const Color(0xFF00D2A3), const Color(0xFF5B73E8)]
+                  : [Colors.grey[400]!, Colors.grey[500]!],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: controller.isValid
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFF00D2A3).withOpacity(0.4),
+                      blurRadius: 15,
+                      offset: const Offset(0, 8),
+                    ),
+                  ]
+                : [],
           ),
-        ] : [],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: controller.isValid && !controller.isSimulating.value
-              ? controller.runSimulation
-              : null,
-          child: Center(
-            child: controller.isSimulating.value
-                ? const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 2.5,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: controller.isValid && !controller.isSimulating.value
+                  ? controller.runSimulation
+                  : null,
+              child: Center(
+                child: controller.isSimulating.value
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.play_arrow_rounded,
+                            color: controller.isValid
+                                ? Colors.white
+                                : Colors.grey[600],
+                            size: 24,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Run Simulation',
+                            style: TextStyle(
+                              color: controller.isValid
+                                  ? Colors.white
+                                  : Colors.grey[600],
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
               ),
-            )
-                : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.play_arrow_rounded,
-                  color: controller.isValid ? Colors.white : Colors.grey[600],
-                  size: 24,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Run Simulation',
-                  style: TextStyle(
-                    color: controller.isValid ? Colors.white : Colors.grey[600],
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
             ),
           ),
-        ),
-      ),
-    ));
+        ));
   }
 
   Widget _buildScheduleResults(WhatIfController controller) {
@@ -766,7 +784,8 @@ class _WhatIfPageState extends State<WhatIfPage>
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(12),
@@ -900,7 +919,6 @@ class _WhatIfPageState extends State<WhatIfPage>
                     ],
                   ),
                   const SizedBox(height: 8),
-
                   Row(
                     children: [
                       Icon(
@@ -1002,13 +1020,12 @@ class WhatIfController extends GetxController {
   void _initializeFromDashboard() {
     try {
       // Initialize with realistic values
-      totalTrains.value = 31; // Total fleet size
-      runningTrains.value = 22; // Active trains
-      maintenanceTrains.value = 6; // In maintenance
+      totalTrains.value = 25; // Total fleet size
+      runningTrains.value = 19; // Active trains
+      maintenanceTrains.value = 3; // In maintenance
       cleaningTrains.value = 1; // Being cleaned
       revenueOperationTrains.value = 1; // Revenue operations
       standbyTrains.value = 1; // On standby
-
     } catch (e) {
       // Fallback values
       totalTrains.value = 31;
@@ -1023,17 +1040,18 @@ class WhatIfController extends GetxController {
   // Computed properties
   int get allocatedTrains =>
       runningTrains.value +
-          maintenanceTrains.value +
-          cleaningTrains.value +
-          revenueOperationTrains.value +
-          standbyTrains.value;
+      maintenanceTrains.value +
+      cleaningTrains.value +
+      revenueOperationTrains.value +
+      standbyTrains.value;
 
   int get remainingTrains => totalTrains.value - allocatedTrains;
   bool get isValid => allocatedTrains <= totalTrains.value;
 
   // Increment/Decrement methods for total trains
   void incrementTotal() {
-    if (totalTrains.value < 50) { // Max limit of 50 trains
+    if (totalTrains.value < 50) {
+      // Max limit of 50 trains
       totalTrains.value++;
     } else {
       Get.snackbar(
@@ -1064,10 +1082,12 @@ class WhatIfController extends GetxController {
         borderRadius: 12,
         duration: const Duration(seconds: 2),
       );
-    } else if (totalTrains.value > 1) { // Minimum 1 train
+    } else if (totalTrains.value > 1) {
+      // Minimum 1 train
       totalTrains.value--;
     }
   }
+
   void incrementRunning() {
     if (allocatedTrains < totalTrains.value) {
       runningTrains.value++;

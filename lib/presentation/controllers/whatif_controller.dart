@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -21,7 +23,8 @@ class WhatIfController extends GetxController {
 
   // Results
   final RxList<ScheduleItem> scheduleResults = <ScheduleItem>[].obs;
-  final Rx<GenerateScheduleResponse?> simulationResponse = Rx<GenerateScheduleResponse?>(null);
+  final Rx<GenerateScheduleResponse?> simulationResponse =
+      Rx<GenerateScheduleResponse?>(null);
 
   @override
   void onInit() {
@@ -57,10 +60,10 @@ class WhatIfController extends GetxController {
   // Computed property for allocated trains
   int get allocatedTrains =>
       runningTrains.value +
-          maintenanceTrains.value +
-          cleaningTrains.value +
-          revenueOperationTrains.value +
-          standbyTrains.value;
+      maintenanceTrains.value +
+      cleaningTrains.value +
+      revenueOperationTrains.value +
+      standbyTrains.value;
 
   // Computed property for remaining trains
   int get remainingTrains => totalTrains.value - allocatedTrains;
@@ -86,7 +89,8 @@ class WhatIfController extends GetxController {
       {'value': revenueOperationTrains, 'priority': 5},
     ];
 
-    categories.sort((a, b) => (b['value'] as RxInt).value.compareTo((a['value'] as RxInt).value));
+    categories.sort((a, b) =>
+        (b['value'] as RxInt).value.compareTo((a['value'] as RxInt).value));
 
     int remaining = excess;
     for (var category in categories) {
@@ -201,21 +205,30 @@ class WhatIfController extends GetxController {
       isSimulating.value = true;
       errorMessage.value = '';
       hasResults.value = false;
+      int slots = maintenanceTrains.value +
+          cleaningTrains.value +
+          revenueOperationTrains.value +
+          standbyTrains.value;
+      ;
 
+      print("trains : ${allocatedTrains.toString()}");
+      print("slots : ${slots.toString()}");
       final response = await http.post(
-        Uri.parse('https://kochi-metro-backend.onrender.com/api/schedule/generate'),
+        Uri.parse(
+            'https://kochi-metro-backend.onrender.com/api/schedule/generate'),
         headers: {
           'Content-Type': 'application/json',
         },
         body: json.encode({
-          'available_slots': totalTrains.value,
-          'available_trains': runningTrains.value,
+          'available_slots': slots,
+          'available_trains': allocatedTrains,
         }),
       );
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-        simulationResponse.value = GenerateScheduleResponse.fromJson(responseData);
+        simulationResponse.value =
+            GenerateScheduleResponse.fromJson(responseData);
 
         // Convert response to schedule items for display
         _processScheduleResults();

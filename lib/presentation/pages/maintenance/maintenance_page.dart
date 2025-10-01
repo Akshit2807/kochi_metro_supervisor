@@ -18,7 +18,9 @@ class _MaintenancePageState extends State<MaintenancePage> {
   @override
   Widget build(BuildContext context) {
     final navController = Get.find<BottomNavController>();
-    navController.currentIndex.value = 2;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      navController.currentIndex.value = 2;
+    });
 
     return Obx(
       () {
@@ -239,6 +241,7 @@ class _MaintenancePageState extends State<MaintenancePage> {
                     controller.filteredTrains.isEmpty)
                   SliverFillRemaining(
                     child: _EmptyState(),
+                    hasScrollBody: false,
                   ),
 
                 // Trains List
