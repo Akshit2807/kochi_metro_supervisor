@@ -18,7 +18,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
     // Mock validation
 
-    if (employeeId == 'admin' && password == 'admin123') {
+    if (employeeId == 'SV0401' && password == 'admin123') {
       return UserModel(
         id: '1',
         employeeId: employeeId,

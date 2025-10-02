@@ -37,17 +37,15 @@ class MaintenanceController extends GetxController {
   }
 
   int get highPriorityCount {
-    return maintenanceData?.data.summaryByPriorityLevel.highPriority.length ??
-        0;
+    return _getCount("High");
   }
 
   int get mediumPriorityCount {
-    return maintenanceData?.data.summaryByPriorityLevel.mediumPriority.length ??
-        0;
+    return _getCount("Medium");
   }
 
   int get lowPriorityCount {
-    return maintenanceData?.data.summaryByPriorityLevel.lowPriority.length ?? 0;
+    return _getCount("Low");
   }
 
   List<String> get priorityLevels => ['All', 'High', 'Medium', 'Low'];
@@ -60,16 +58,24 @@ class MaintenanceController extends GetxController {
 
   Future<void> loadMaintenanceData() async {
     try {
+      print('DEBUG: Starting loadMaintenanceData');
       _isLoading.value = true;
       _errorMessage.value = '';
 
+      print('DEBUG: About to call useCase.execute()');
       final response = await _useCase.execute();
+      print('DEBUG: Got response: $response');
+
       _maintenanceData.value = response;
+      print('DEBUG: Set maintenance data');
 
       // Initialize filtered trains with all trains
       _applyFilters();
+      print(
+          'DEBUG: Applied filters, total filtered trains: ${_filteredTrains.length}');
     } catch (e) {
-      print(e.toString());
+      print('DEBUG: Error occurred: ${e.toString()}');
+      print('DEBUG: Error type: ${e.runtimeType}');
       _errorMessage.value = e.toString();
       Get.snackbar(
         'Error',
@@ -77,7 +83,9 @@ class MaintenanceController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
     } finally {
+      print('DEBUG: Setting isLoading to false');
       _isLoading.value = false;
+      print('DEBUG: isLoading is now: ${_isLoading.value}');
     }
   }
 
@@ -121,6 +129,19 @@ class MaintenanceController extends GetxController {
     }
 
     _filteredTrains.value = trains;
+  }
+
+  int _getCount(String query) {
+    var trains = List<TrainPriority>.from(allTrains);
+
+    // Sort by priority rank
+    trains = _useCase.sortTrainsByPriority(trains);
+
+    // Apply search filter
+
+    trains = _useCase.searchTrains(trains, query);
+
+    return trains.length;
   }
 
   TrainPriority? getTrainById(String trainId) {
@@ -213,31 +234,31 @@ class MaintenanceController extends GetxController {
               const Divider(height: 18),
 
               // Component Scores
-              Text(
-                'Component Scores',
-                style: Get.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              _buildScoreRow('Branding',
-                  '${getFormattedScore(train.scoresBySheet.branding)}%'),
-              _buildScoreRow('Job Card',
-                  '${getFormattedScore(train.scoresBySheet.jobCard)}%'),
-              _buildScoreRow('Cleaning',
-                  '${getFormattedScore(train.scoresBySheet.cleaning)}%'),
-              _buildScoreRow('Fitness',
-                  '${getFormattedScore(train.scoresBySheet.fitness)}%'),
-              _buildScoreRow('Geometry',
-                  '${getFormattedScore(train.scoresBySheet.geometry)}%'),
-              _buildScoreRow('Mileage',
-                  '${getFormattedScore(train.scoresBySheet.mileage)}%'),
+              // Text(
+              //   'Component Scores',
+              //   style: Get.textTheme.titleMedium?.copyWith(
+              //     fontWeight: FontWeight.w600,
+              //   ),
+              // ),
+              // const SizedBox(height: 10),
+              //
+              // _buildScoreRow('Branding',
+              //     '${getFormattedScore(train.scoresBySheet.branding)}%'),
+              // _buildScoreRow('Job Card',
+              //     '${getFormattedScore(train.scoresBySheet.jobCard)}%'),
+              // _buildScoreRow('Cleaning',
+              //     '${getFormattedScore(train.scoresBySheet.cleaning)}%'),
+              // _buildScoreRow('Fitness',
+              //     '${getFormattedScore(train.scoresBySheet.fitness)}%'),
+              // _buildScoreRow('Geometry',
+              //     '${getFormattedScore(train.scoresBySheet.geometry)}%'),
+              // _buildScoreRow('Mileage',
+              //     '${getFormattedScore(train.scoresBySheet.mileage)}%'),
 
               const SizedBox(height: 10),
 
               // Original Data Section (if available)
-              if (train.originalData != null) ...[
+              ...[
                 Text(
                   'Original Data',
                   style: Get.textTheme.titleMedium?.copyWith(

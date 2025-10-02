@@ -14,7 +14,9 @@ class SchedulePage extends GetView<ScheduleController> {
   @override
   Widget build(BuildContext context) {
     final navController = Get.find<BottomNavController>();
-    navController.currentIndex.value = 1;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      navController.currentIndex.value = 1;
+    });
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FE),
@@ -53,7 +55,8 @@ class SchedulePage extends GetView<ScheduleController> {
                         left: (index * 100.0) - 50,
                         top: (index * 50.0) - 30,
                         child: TweenAnimationBuilder(
-                          duration: Duration(milliseconds: 2000 + (index * 300)),
+                          duration:
+                              Duration(milliseconds: 2000 + (index * 300)),
                           tween: Tween<double>(begin: 0, end: 1),
                           builder: (context, double value, child) {
                             return Transform.translate(
@@ -181,18 +184,20 @@ class SchedulePage extends GetView<ScheduleController> {
                     const SizedBox(height: 16),
 
                     // Time Filter (Required)
-                    _buildPremiumDropdown(
-                      label: 'Time Period',
-                      value: controller.getSelectedTimeLabel(),
-                      icon: Icons.access_time_rounded,
-                      iconColor: const Color(0xFFFF6B6B),
-                      isRequired: true,
-                      items: controller.getTimeOptions(),
-                      onChanged: (value) {
-                        if (value != null) {
-                          controller.setTimeFilter(value);
-                        }
-                      },
+                    Obx(
+                      () => _buildPremiumDropdown(
+                        label: 'Time Period',
+                        value: controller.getSelectedTimeLabel(),
+                        icon: Icons.access_time_rounded,
+                        iconColor: const Color(0xFFFF6B6B),
+                        isRequired: true,
+                        items: controller.getTimeOptions(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            controller.setTimeFilter(value);
+                          }
+                        },
+                      ),
                     ),
 
                     const SizedBox(height: 12),
@@ -202,30 +207,35 @@ class SchedulePage extends GetView<ScheduleController> {
                       children: [
                         Expanded(
                           child: Obx(() => _buildPremiumDropdown(
-                            label: 'Station',
-                            value: controller.staion.value.isEmpty
-                                ? null
-                                : controller.staion.value,
-                            icon: Icons.location_on_rounded,
-                            iconColor: const Color(0xFF667eea),
-                            isEnabled: controller.trainid.value.isEmpty,
-                            items: ['Clear Selection', ...controller.getStationOptions()],
-                            onChanged: (value) => controller.selectStation(value),
-                          )),
+                                label: 'Station',
+                                value: controller.staion.value.isEmpty
+                                    ? null
+                                    : controller.staion.value,
+                                icon: Icons.location_on_rounded,
+                                iconColor: const Color(0xFF667eea),
+                                isEnabled: controller.trainid.value.isEmpty,
+                                items: [
+                                  'Clear Selection',
+                                  ...controller.getStationOptions()
+                                ],
+                                onChanged: (value) =>
+                                    controller.selectStation(value),
+                              )),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Obx(() => _buildPremiumDropdown(
-                            label: 'Train ID',
-                            value: controller.trainid.value.isEmpty
-                                ? null
-                                : controller.trainid.value,
-                            icon: Icons.train_rounded,
-                            iconColor: const Color(0xFF00D2A3),
-                            isEnabled: controller.staion.value.isEmpty,
-                            items: controller.getTrainIdOptions(),
-                            onChanged: (value) => controller.selectTrainId(value),
-                          )),
+                                label: 'Train ID',
+                                value: controller.trainid.value.isEmpty
+                                    ? null
+                                    : controller.trainid.value,
+                                icon: Icons.train_rounded,
+                                iconColor: const Color(0xFF00D2A3),
+                                isEnabled: controller.staion.value.isEmpty,
+                                items: controller.getTrainIdOptions(),
+                                onChanged: (value) =>
+                                    controller.selectTrainId(value),
+                              )),
                         ),
                       ],
                     ),
@@ -237,116 +247,117 @@ class SchedulePage extends GetView<ScheduleController> {
             // Stats Badge
             SliverToBoxAdapter(
               child: Obx(() => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TweenAnimationBuilder(
-                  duration: const Duration(milliseconds: 800),
-                  tween: Tween<double>(begin: 0, end: 1),
-                  builder: (context, double value, child) {
-                    return Transform.scale(
-                      scale: value,
-                      child: Opacity(
-                        opacity: value,
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF667eea).withOpacity(0.3),
-                          blurRadius: 15,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.25),
-                            borderRadius: BorderRadius.circular(12),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: TweenAnimationBuilder(
+                      duration: const Duration(milliseconds: 800),
+                      tween: Tween<double>(begin: 0, end: 1),
+                      builder: (context, double value, child) {
+                        return Transform.scale(
+                          scale: value,
+                          child: Opacity(
+                            opacity: value,
+                            child: child,
                           ),
-                          child: const Icon(
-                            Icons.train_rounded,
-                            color: Colors.white,
-                            size: 28,
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
                           ),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF667eea).withOpacity(0.3),
+                              blurRadius: 15,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Running Trains',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.25),
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              const SizedBox(height: 4),
-                              TweenAnimationBuilder(
-                                duration: const Duration(milliseconds: 1000),
-                                tween: IntTween(
-                                  begin: 0,
-                                  end: controller.schedules.length,
-                                ),
-                                builder: (context, int value, child) {
-                                  return Text(
-                                    value.toString(),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.w900,
-                                      height: 1,
+                              child: const Icon(
+                                Icons.train_rounded,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Running Trains',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                  );
-                                },
+                                  ),
+                                  const SizedBox(height: 4),
+                                  TweenAnimationBuilder(
+                                    duration:
+                                        const Duration(milliseconds: 1000),
+                                    tween: IntTween(
+                                      begin: 0,
+                                      end: controller.schedules.length,
+                                    ),
+                                    builder: (context, int value, child) {
+                                      return Text(
+                                        value.toString(),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 32,
+                                          fontWeight: FontWeight.w900,
+                                          height: 1,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.25),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Row(
+                                children: [
+                                  Icon(
+                                    Icons.circle,
+                                    color: Colors.greenAccent,
+                                    size: 12,
+                                  ),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    'Live',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.25),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Row(
-                            children: [
-                              Icon(
-                                Icons.circle,
-                                color: Colors.greenAccent,
-                                size: 12,
-                              ),
-                              SizedBox(width: 6),
-                              Text(
-                                'Live',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              )),
+                  )),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
@@ -369,7 +380,7 @@ class SchedulePage extends GetView<ScheduleController> {
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate(
-                        (context, index) {
+                    (context, index) {
                       final schedule = controller.schedules[index];
                       return _UltraPremiumTrainCard(
                         schedule: schedule,
@@ -382,11 +393,11 @@ class SchedulePage extends GetView<ScheduleController> {
                               builder: (context) => TrainDetailsScreen(
                                 trainId: schedule.trainId.substring(6),
                                 route:
-                                "${schedule.tripDetails.stops.elementAt(0).stopId} → ${schedule.currentTrip.endStation}",
+                                    "${schedule.tripDetails.stops.elementAt(0).stopId} → ${schedule.currentTrip.endStation}",
                                 departureTime:
-                                "${schedule.currentTrip.startStation} : ${schedule.tripDetails.stops.elementAt(0).departureTime}",
+                                    "${schedule.currentTrip.startStation} : ${schedule.tripDetails.stops.elementAt(0).departureTime}",
                                 arrivalTime:
-                                "${schedule.currentTrip.endStation} : ${schedule.tripDetails.stops.elementAt(last - 1).departureTime}",
+                                    "${schedule.currentTrip.endStation} : ${schedule.tripDetails.stops.elementAt(last - 1).departureTime}",
                                 stop: schedule.tripDetails.stops
                                     .elementAt(0)
                                     .stopName,
@@ -448,12 +459,12 @@ class SchedulePage extends GetView<ScheduleController> {
           ),
           boxShadow: isEnabled
               ? [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ]
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
               : [],
         ),
         child: Row(
@@ -714,7 +725,8 @@ class _UltraPremiumTrainCardState extends State<_UltraPremiumTrainCard>
                       bottomRight: Radius.circular(24),
                     ),
                     child: LinearProgressIndicator(
-                      value: widget.schedule.currentTrip.progressPercentage / 100,
+                      value:
+                          widget.schedule.currentTrip.progressPercentage / 100,
                       backgroundColor: Colors.grey[100],
                       valueColor: const AlwaysStoppedAnimation<Color>(
                         Color(0xFF667eea),

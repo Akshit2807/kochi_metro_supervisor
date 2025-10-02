@@ -11,7 +11,7 @@ class ScheduleController extends GetxController {
   RxString trainid = ''.obs;
   RxString staion = ''.obs;
   var time = DateTime.now().obs;
-  RxString selectedTimeFilter = ''.obs;
+  RxString selectedTimeFilter = 'Afternoon (12 PM - 6 PM)'.obs;
   late final ScheduleRepository repository;
   late final GetRunningTrainsUseCase getRunningTrainsUseCase;
   late final GenerateScheduleUseCase generateScheduleUseCase;
@@ -110,7 +110,8 @@ class ScheduleController extends GetxController {
 
   // Set current time as default time filter
   void setDefaultCurrentTime() {
-    time.value = DateTime.now();
+    final now = DateTime.now();
+    time.value = DateTime(now.year, now.month, now.day, 15);
     selectedTimeFilter.value = _getCurrentTimeLabel();
   }
 
@@ -119,12 +120,10 @@ class ScheduleController extends GetxController {
     final hour = DateTime.now().hour;
     if (hour >= 6 && hour < 12) {
       return 'Morning (6 AM - 12 PM)';
-    } else if (hour >= 12 && hour < 18) {
-      return 'Afternoon (12 PM - 6 PM)';
     } else if (hour >= 18 && hour < 24) {
       return 'Evening (6 PM - 12 AM)';
     } else {
-      return 'Day (6 AM - 12 AM)';
+      return 'Afternoon (12 PM - 6 PM)';
     }
   }
 
@@ -197,6 +196,7 @@ class ScheduleController extends GetxController {
   // Set time filter based on selection (compulsory)
   void setTimeFilter(String timeLabel) {
     selectedTimeFilter.value = timeLabel;
+
     final now = DateTime.now();
 
     switch (timeLabel) {

@@ -18,10 +18,13 @@ class _MaintenancePageState extends State<MaintenancePage> {
   @override
   Widget build(BuildContext context) {
     final navController = Get.find<BottomNavController>();
-    navController.currentIndex.value = 2;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      navController.currentIndex.value = 2;
+    });
 
-    return GetBuilder<MaintenanceController>(
-      builder: (controller) {
+    return Obx(
+      () {
+        final controller = Get.find<MaintenanceController>();
         return Scaffold(
           backgroundColor: const Color(0xFFF8F9FE),
           body: RefreshIndicator(
@@ -88,8 +91,7 @@ class _MaintenancePageState extends State<MaintenancePage> {
                                       return Opacity(
                                         opacity: value,
                                         child: Transform.translate(
-                                          offset:
-                                          Offset(-30 * (1 - value), 0),
+                                          offset: Offset(-30 * (1 - value), 0),
                                           child: child,
                                         ),
                                       );
@@ -239,6 +241,7 @@ class _MaintenancePageState extends State<MaintenancePage> {
                     controller.filteredTrains.isEmpty)
                   SliverFillRemaining(
                     child: _EmptyState(),
+                    hasScrollBody: false,
                   ),
 
                 // Trains List
@@ -249,7 +252,7 @@ class _MaintenancePageState extends State<MaintenancePage> {
                     padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
-                            (context, index) {
+                        (context, index) {
                           final train = controller.filteredTrains[index];
                           return _PremiumTrainCard(
                             train: train,
@@ -311,7 +314,7 @@ class _MaintenancePageState extends State<MaintenancePage> {
                           ? const Color(0xFF667eea)
                           : Colors.grey[700],
                       fontWeight:
-                      isSelected ? FontWeight.w700 : FontWeight.w600,
+                          isSelected ? FontWeight.w700 : FontWeight.w600,
                     ),
                   );
                 }).toList(),
@@ -395,15 +398,15 @@ class _AnimatedSearchBar extends StatelessWidget {
           decoration: InputDecoration(
             hintText: 'Search trains...',
             prefixIcon:
-            const Icon(Icons.search_rounded, color: Color(0xFF667eea)),
+                const Icon(Icons.search_rounded, color: Color(0xFF667eea)),
             border: InputBorder.none,
             contentPadding: const EdgeInsets.all(16),
             suffixIcon: controller.searchQuery.isEmpty
                 ? const SizedBox.shrink()
                 : IconButton(
-              icon: const Icon(Icons.clear_rounded),
-              onPressed: () => controller.setSearchQuery(''),
-            ),
+                    icon: const Icon(Icons.clear_rounded),
+                    onPressed: () => controller.setSearchQuery(''),
+                  ),
           ),
         ),
       ),
@@ -578,11 +581,9 @@ class _FilterChipsSection extends StatelessWidget {
                         : Colors.grey.withOpacity(0.2),
                   ),
                   labelStyle: TextStyle(
-                    color: isSelected
-                        ? const Color(0xFF667eea)
-                        : Colors.grey[700],
-                    fontWeight:
-                    isSelected ? FontWeight.w700 : FontWeight.w600,
+                    color:
+                        isSelected ? const Color(0xFF667eea) : Colors.grey[700],
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                   ),
                 ),
               ),
@@ -881,8 +882,7 @@ class _FloatingRefreshButton extends StatefulWidget {
   const _FloatingRefreshButton({required this.onPressed});
 
   @override
-  State<_FloatingRefreshButton> createState() =>
-      _FloatingRefreshButtonState();
+  State<_FloatingRefreshButton> createState() => _FloatingRefreshButtonState();
 }
 
 class _FloatingRefreshButtonState extends State<_FloatingRefreshButton>
